@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from enum import StrEnum
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class ProtocolDomain(StrEnum):
@@ -25,9 +25,11 @@ class VerificationStrategy(StrEnum):
 
 
 class CommandDefinition(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
     name: str
     domain: ProtocolDomain
-    report_id: int
-    request_prefix: bytes
+    report_id: int = Field(ge=0, le=255)
+    request_prefix: bytes = Field(min_length=1)
     confidence: CommandConfidence
     verification: VerificationStrategy
