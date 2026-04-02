@@ -75,8 +75,29 @@ COMMANDS: tuple[CommandDefinition, ...] = (
 )
 
 
+def _validate_commands(commands: tuple[CommandDefinition, ...]) -> None:
+    command_names: set[str] = set()
+    request_signatures: set[tuple[int, bytes]] = set()
+
+    for command in commands:
+        if command.name in command_names:
+            raise ValueError(f"duplicate command name: {command.name}")
+        command_names.add(command.name)
+
+        signature = (command.report_id, command.request_prefix)
+        if signature in request_signatures:
+            raise ValueError(
+                "duplicate command request prefix: "
+                f"{command.report_id!r}, {command.request_prefix!r}"
+            )
+        request_signatures.add(signature)
+
+
+_validate_commands(COMMANDS)
+
+
 def list_commands_for_domain(domain: ProtocolDomain) -> list[CommandDefinition]:
-    return [command for command in COMMANDS if command.domain is domain]
+    return [command for command in COMMANDS if command.domain == domain]
 
 
 def get_command(name: str) -> CommandDefinition:
