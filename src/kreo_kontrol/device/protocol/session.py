@@ -1,9 +1,15 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Protocol
 
 from kreo_kontrol.device.protocol.models import CommandDefinition
 from kreo_kontrol.device.trace import HidTraceEntry
+
+
+class Transport(Protocol):
+    def exchange(self, payload: bytes) -> bytes:
+        ...
 
 
 @dataclass
@@ -15,8 +21,8 @@ class CommandResult:
 
 
 class ProtocolSession:
-    def __init__(self, transport) -> None:
-        self._transport = transport
+    def __init__(self, transport: Transport) -> None:
+        self._transport: Transport = transport
 
     def execute(self, command: CommandDefinition, payload_suffix: bytes) -> CommandResult:
         payload = command.request_prefix + payload_suffix
