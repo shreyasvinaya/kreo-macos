@@ -18,5 +18,7 @@ def test_command_definition_tracks_confidence_and_verification() -> None:
 
     assert definition.name == "profiles.read_slots"
     assert definition.domain is ProtocolDomain.PROFILES
+    assert definition.report_id == 5
+    assert definition.request_prefix == b"\x05\x10"
     assert definition.confidence is CommandConfidence.INFERRED
     assert definition.verification is VerificationStrategy.FULL_DOMAIN_REREAD
