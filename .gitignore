@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.cache/
+.config/
+.local/
+frontend/node_modules/
+frontend/dist/
+dist/
+build/

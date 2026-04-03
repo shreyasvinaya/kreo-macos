@@ -31,6 +31,41 @@ class LightingResponse(BaseModel):
     mode: str
     brightness: int
     per_key_rgb_supported: bool
+    color: str | None = None
+    verification_status: str = "unverified"
+
+
+class LightingApplyPayload(BaseModel):
+    mode: str
+    brightness: int | None = None
+    color: str | None = None
+
+
+class LightingApplyResponse(BaseModel):
+    mode: str
+    brightness: int
+    per_key_rgb_supported: bool
+    color: str | None = None
+    verification_status: str
+
+
+class PerKeyLightingEntry(BaseModel):
+    ui_key: str
+    label: str
+    light_pos: int
+    color: str
+
+
+class PerKeyLightingResponse(BaseModel):
+    mode: str
+    brightness: int
+    per_key_rgb_supported: bool
+    verification_status: str
+    keys: list[PerKeyLightingEntry]
+
+
+class PerKeyLightingApplyPayload(BaseModel):
+    edits: dict[str, str]
 
 
 class MacrosResponse(BaseModel):
