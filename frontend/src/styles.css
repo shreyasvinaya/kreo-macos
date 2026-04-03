@@ -371,6 +371,27 @@ code {
   z-index: 2;
 }
 
+.asset-keyboard-legends {
+  z-index: 3;
+  pointer-events: none;
+}
+
+.asset-keyboard-legend {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  padding: 0.18rem 0.34rem;
+  border-radius: 999px;
+  background: rgba(12, 20, 30, 0.82);
+  border: 1px solid rgba(108, 143, 176, 0.35);
+  color: #f4f7fb;
+  font-size: 0.58rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
 .board-shell {
   min-width: fit-content;
   display: grid;

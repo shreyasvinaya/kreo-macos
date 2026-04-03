@@ -8,12 +8,14 @@ dependencies = [
   "fastapi>=0.115",
   "hidapi>=0.14",
   "pydantic>=2.11",
+  "pyobjc-framework-quartz>=12.1",
   "pyside6>=6.9",
   "uvicorn>=0.34",
 ]
 
 [project.scripts]
 kreo-kontrol = "kreo_kontrol.main:main"
+kreo-kontrol-capture-modifiers = "kreo_kontrol.tools.modifier_capture:main"
 
 [dependency-groups]
 dev = [

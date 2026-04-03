@@ -89,6 +89,8 @@ def create_app(
     def apply_profile(snapshot_id: str) -> ProfilesResponse:
         try:
             return profiles_store.apply_snapshot(controller, snapshot_id)
+        except LightingProtocolError as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
         except ValueError as exc:
             raise HTTPException(status_code=404, detail=str(exc)) from exc
 
@@ -98,15 +100,21 @@ def create_app(
 
     @app.post("/api/keymap/apply", response_model=KeymapResponse)
     def apply_keymap(payload: KeymapApplyPayload) -> KeymapResponse:
-        result = controller.apply_keymap(
-            {
-                ui_key: {
-                    "base_raw_value": edit.base_raw_value,
-                    "fn_raw_value": edit.fn_raw_value,
+        try:
+            result = controller.apply_keymap(
+                {
+                    ui_key: {
+                        "base_raw_value": edit.base_raw_value,
+                        "fn_raw_value": edit.fn_raw_value,
+                    }
+                    for ui_key, edit in payload.edits.items()
                 }
-                for ui_key, edit in payload.edits.items()
-            }
-        )
+            )
+        except LightingHardwareUnavailableError as exc:
+            raise HTTPException(status_code=503, detail=str(exc)) from exc
+        except LightingProtocolError as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
+        profiles_store.update_active_keymap_from_controller(controller)
         return KeymapResponse.model_validate(result)
 
     @app.get("/api/lighting", response_model=LightingResponse)
@@ -147,6 +155,7 @@ def create_app(
             raise HTTPException(status_code=503, detail=str(exc)) from exc
         except LightingProtocolError as exc:
             raise HTTPException(status_code=422, detail=str(exc)) from exc
+        profiles_store.update_active_lighting_from_controller(controller)
 
         return LightingApplyResponse(
             mode=state.mode,
@@ -175,6 +184,7 @@ def create_app(
             raise HTTPException(status_code=503, detail=str(exc)) from exc
         except LightingProtocolError as exc:
             raise HTTPException(status_code=422, detail=str(exc)) from exc
+        profiles_store.update_active_lighting_from_controller(controller)
 
         return PerKeyLightingResponse.model_validate(result)
 
@@ -206,6 +216,7 @@ def create_app(
             raise HTTPException(status_code=503, detail=str(exc)) from exc
         except LightingProtocolError as exc:
             raise HTTPException(status_code=422, detail=str(exc)) from exc
+        profiles_store.update_active_macros_from_controller(controller)
         return MacrosResponse.model_validate(result)
 
     @app.delete("/api/macros/{slot_id}", response_model=MacrosResponse)
@@ -216,6 +227,7 @@ def create_app(
             raise HTTPException(status_code=503, detail=str(exc)) from exc
         except LightingProtocolError as exc:
             raise HTTPException(status_code=422, detail=str(exc)) from exc
+        profiles_store.update_active_macros_from_controller(controller)
         return MacrosResponse.model_validate(result)
 
     if dist_path.exists():

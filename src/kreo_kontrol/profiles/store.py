@@ -13,6 +13,9 @@ from kreo_kontrol.api.models import (
     SavedKeymapAssignmentResponse,
     SavedKeymapSnapshotResponse,
     SavedLightingSnapshotResponse,
+    SavedMacroActionResponse,
+    SavedMacroSlotResponse,
+    SavedMacrosSnapshotResponse,
     SavedProfileSnapshotResponse,
 )
 from kreo_kontrol.device.domains.lighting import LightingApplyRequest
@@ -34,12 +37,38 @@ class SavedLightingSnapshot(BaseModel):
     keys: dict[str, str]
 
 
+class SavedMacroAction(BaseModel):
+    key: str
+    event_type: str
+    delay_ms: int
+
+
+class SavedMacroSlot(BaseModel):
+    slot_id: int
+    name: str
+    execution_type: str
+    cycle_times: int
+    bound_ui_keys: list[str]
+    actions: list[SavedMacroAction]
+
+
+class SavedMacrosSnapshot(BaseModel):
+    supported: bool
+    reason: str | None = None
+    slots: list[SavedMacroSlot] = Field(default_factory=list)
+
+
+def default_saved_macros_snapshot() -> SavedMacrosSnapshot:
+    return SavedMacrosSnapshot(supported=False, reason="No macro snapshot captured", slots=[])
+
+
 class SavedProfileSnapshot(BaseModel):
     snapshot_id: str
     name: str
     updated_at: str
     lighting: SavedLightingSnapshot
     keymap: SavedKeymapSnapshot
+    macros: SavedMacrosSnapshot = Field(default_factory=default_saved_macros_snapshot)
 
 
 class SavedProfilesDocument(BaseModel):
@@ -75,32 +104,10 @@ class SavedProfilesStore:
         """Capture the current keyboard state into a saved snapshot."""
 
         document = self.load()
-        lighting_state = controller.read_state()
-        per_key_state = controller.read_per_key_state()
-        keymap_state = controller.read_keymap()
-
-        snapshot = SavedProfileSnapshot(
-            snapshot_id=str(uuid4()),
+        snapshot = self._capture_snapshot_from_controller(
+            controller,
             name=name,
-            updated_at=datetime.now(UTC).isoformat(),
-            lighting=SavedLightingSnapshot(
-                mode=lighting_state.mode,
-                brightness=lighting_state.brightness,
-                color=lighting_state.color,
-                keys={
-                    str(entry["ui_key"]): str(entry["color"])
-                    for entry in per_key_state["keys"]
-                },
-            ),
-            keymap=SavedKeymapSnapshot(
-                assignments={
-                    str(entry["ui_key"]): SavedKeymapAssignment(
-                        base_raw_value=int(entry["base_action"]["raw_value"]),
-                        fn_raw_value=int(entry["fn_action"]["raw_value"]),
-                    )
-                    for entry in keymap_state["assignments"]
-                }
-            ),
+            snapshot_id=str(uuid4()),
         )
         document.snapshots.append(snapshot)
         document.active_snapshot_id = snapshot.snapshot_id
@@ -122,7 +129,6 @@ class SavedProfilesStore:
             {
                 ui_key: {
                     "base_raw_value": assignment.base_raw_value,
-                    "fn_raw_value": assignment.fn_raw_value,
                 }
                 for ui_key, assignment in snapshot.keymap.assignments.items()
             }
@@ -137,14 +143,202 @@ class SavedProfilesStore:
                     color=snapshot.lighting.color,
                 )
             )
+        if snapshot.macros.supported:
+            current_macros = controller.read_macros()
+            if current_macros["supported"]:
+                current_slot_ids = sorted(
+                    (int(slot["slot_id"]) for slot in current_macros["slots"]),
+                    reverse=True,
+                )
+                target_slot_ids = {slot.slot_id for slot in snapshot.macros.slots}
+                for slot_id in current_slot_ids:
+                    if slot_id not in target_slot_ids:
+                        controller.delete_macro(slot_id)
+                for slot in snapshot.macros.slots:
+                    controller.apply_macro(
+                        slot.slot_id,
+                        {
+                            "name": slot.name,
+                            "bound_ui_key": slot.bound_ui_keys[0] if slot.bound_ui_keys else None,
+                            "execution_type": slot.execution_type,
+                            "cycle_times": slot.cycle_times,
+                            "actions": [
+                                {
+                                    "key": action.key,
+                                    "event_type": action.event_type,
+                                    "delay_ms": action.delay_ms,
+                                }
+                                for action in slot.actions
+                            ],
+                        },
+                    )
 
         document.active_snapshot_id = snapshot.snapshot_id
+        self._save(document)
+        return self._to_response(document)
+
+    def update_active_lighting_from_controller(self, controller) -> ProfilesResponse:
+        """Refresh only the active snapshot's lighting state from the controller."""
+
+        document = self.load()
+        snapshot = self._find_active_snapshot(document)
+        if snapshot is None:
+            return self._to_response(document)
+
+        lighting_state = controller.read_state()
+        per_key_state = controller.read_per_key_state()
+        snapshot.lighting = SavedLightingSnapshot(
+            mode=lighting_state.mode,
+            brightness=lighting_state.brightness,
+            color=lighting_state.color,
+            keys={
+                str(entry["ui_key"]): str(entry["color"])
+                for entry in per_key_state["keys"]
+            },
+        )
+        snapshot.updated_at = datetime.now(UTC).isoformat()
+        self._save(document)
+        return self._to_response(document)
+
+    def update_active_keymap_from_controller(self, controller) -> ProfilesResponse:
+        """Refresh only the active snapshot's keymap state from the controller."""
+
+        document = self.load()
+        snapshot = self._find_active_snapshot(document)
+        if snapshot is None:
+            return self._to_response(document)
+
+        keymap_state = controller.read_keymap()
+        snapshot.keymap = SavedKeymapSnapshot(
+            assignments={
+                str(entry["ui_key"]): SavedKeymapAssignment(
+                    base_raw_value=int(entry["base_action"]["raw_value"]),
+                    fn_raw_value=int(entry["fn_action"]["raw_value"]),
+                )
+                for entry in keymap_state["assignments"]
+            }
+        )
+        snapshot.updated_at = datetime.now(UTC).isoformat()
+        self._save(document)
+        return self._to_response(document)
+
+    def update_active_macros_from_controller(self, controller) -> ProfilesResponse:
+        """Refresh only the active snapshot's macros state from the controller."""
+
+        document = self.load()
+        snapshot = self._find_active_snapshot(document)
+        if snapshot is None:
+            return self._to_response(document)
+
+        snapshot.macros = self._capture_macros_snapshot(controller, snapshot)
+        snapshot.updated_at = datetime.now(UTC).isoformat()
         self._save(document)
         return self._to_response(document)
 
     def _save(self, document: SavedProfilesDocument) -> None:
         self._path.parent.mkdir(parents=True, exist_ok=True)
         self._path.write_text(document.model_dump_json(indent=2), encoding="utf-8")
+
+    def _find_active_snapshot(
+        self,
+        document: SavedProfilesDocument,
+    ) -> SavedProfileSnapshot | None:
+        if document.active_snapshot_id is None:
+            return None
+        return next(
+            (
+                snapshot
+                for snapshot in document.snapshots
+                if snapshot.snapshot_id == document.active_snapshot_id
+            ),
+            None,
+        )
+
+    def _capture_snapshot_from_controller(
+        self,
+        controller,
+        *,
+        name: str,
+        snapshot_id: str,
+        existing_snapshot: SavedProfileSnapshot | None = None,
+    ) -> SavedProfileSnapshot:
+        lighting_state = controller.read_state()
+        per_key_state = controller.read_per_key_state()
+        keymap_state = controller.read_keymap()
+        macros_snapshot = self._capture_macros_snapshot(controller, existing_snapshot)
+
+        return SavedProfileSnapshot(
+            snapshot_id=snapshot_id,
+            name=name,
+            updated_at=datetime.now(UTC).isoformat(),
+            lighting=SavedLightingSnapshot(
+                mode=lighting_state.mode,
+                brightness=lighting_state.brightness,
+                color=lighting_state.color,
+                keys={
+                    str(entry["ui_key"]): str(entry["color"])
+                    for entry in per_key_state["keys"]
+                },
+            ),
+            keymap=SavedKeymapSnapshot(
+                assignments={
+                    str(entry["ui_key"]): SavedKeymapAssignment(
+                        base_raw_value=int(entry["base_action"]["raw_value"]),
+                        fn_raw_value=int(entry["fn_action"]["raw_value"]),
+                    )
+                    for entry in keymap_state["assignments"]
+                }
+            ),
+            macros=macros_snapshot,
+        )
+
+    def _capture_macros_snapshot(
+        self,
+        controller,
+        existing_snapshot: SavedProfileSnapshot | None = None,
+    ) -> SavedMacrosSnapshot:
+        try:
+            payload = controller.read_macros()
+        except Exception:
+            return (
+                existing_snapshot.macros
+                if existing_snapshot is not None
+                else SavedMacrosSnapshot(supported=False, reason="Unable to read macros")
+            )
+
+        if not payload["supported"]:
+            return (
+                existing_snapshot.macros
+                if existing_snapshot is not None
+                else SavedMacrosSnapshot(
+                    supported=False,
+                    reason=payload["reason"],
+                    slots=[],
+                )
+            )
+
+        return SavedMacrosSnapshot(
+            supported=True,
+            reason=payload["reason"],
+            slots=[
+                SavedMacroSlot(
+                    slot_id=int(slot["slot_id"]),
+                    name=str(slot["name"]),
+                    execution_type=str(slot["execution_type"]),
+                    cycle_times=int(slot["cycle_times"]),
+                    bound_ui_keys=[str(value) for value in slot["bound_ui_keys"]],
+                    actions=[
+                        SavedMacroAction(
+                            key=str(action["key"]),
+                            event_type=str(action["event_type"]),
+                            delay_ms=int(action["delay_ms"]),
+                        )
+                        for action in slot["actions"]
+                    ],
+                )
+                for slot in payload["slots"]
+            ],
+        )
 
     def _to_response(self, document: SavedProfilesDocument) -> ProfilesResponse:
         active_index = None
@@ -180,6 +374,28 @@ class SavedProfilesStore:
                             )
                             for ui_key, assignment in snapshot.keymap.assignments.items()
                         }
+                    ),
+                    macros=SavedMacrosSnapshotResponse(
+                        supported=snapshot.macros.supported,
+                        reason=snapshot.macros.reason,
+                        slots=[
+                            SavedMacroSlotResponse(
+                                slot_id=slot.slot_id,
+                                name=slot.name,
+                                execution_type=slot.execution_type,
+                                cycle_times=slot.cycle_times,
+                                bound_ui_keys=slot.bound_ui_keys,
+                                actions=[
+                                    SavedMacroActionResponse(
+                                        key=action.key,
+                                        event_type=action.event_type,
+                                        delay_ms=action.delay_ms,
+                                    )
+                                    for action in slot.actions
+                                ],
+                            )
+                            for slot in snapshot.macros.slots
+                        ],
                     ),
                 )
                 for snapshot in document.snapshots

@@ -64,12 +64,34 @@ class SavedLightingSnapshotResponse(BaseModel):
     keys: dict[str, str]
 
 
+class SavedMacroActionResponse(BaseModel):
+    key: str
+    event_type: str
+    delay_ms: int
+
+
+class SavedMacroSlotResponse(BaseModel):
+    slot_id: int
+    name: str
+    execution_type: str
+    cycle_times: int
+    bound_ui_keys: list[str]
+    actions: list[SavedMacroActionResponse]
+
+
+class SavedMacrosSnapshotResponse(BaseModel):
+    supported: bool
+    reason: str | None = None
+    slots: list[SavedMacroSlotResponse]
+
+
 class SavedProfileSnapshotResponse(BaseModel):
     snapshot_id: str
     name: str
     updated_at: str
     lighting: SavedLightingSnapshotResponse
     keymap: SavedKeymapSnapshotResponse
+    macros: SavedMacrosSnapshotResponse
 
 
 class CreateProfilePayload(BaseModel):

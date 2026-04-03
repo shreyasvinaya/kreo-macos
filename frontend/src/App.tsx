@@ -1,4 +1,11 @@
-import { startTransition, useDeferredValue, useEffect, useState, type MouseEvent } from "react";
+import {
+  startTransition,
+  useDeferredValue,
+  useEffect,
+  useRef,
+  useState,
+  type MouseEvent,
+} from "react";
 
 import { DeviceCard } from "./components/device-card";
 import { DropdownSelect } from "./components/dropdown-select";
@@ -32,7 +39,16 @@ import {
   applyThreeColorSplit,
   applyTwoColorSplit,
 } from "./lib/lighting-layout";
-import { applyLightingColorsToSvg } from "./lib/keyboard-assets";
+import {
+  applyLightingColorsToSvg,
+  buildKeyboardLegendOverrides,
+} from "./lib/keyboard-assets";
+import { buildKeymapColorsBySvgId } from "./lib/keymap";
+import {
+  computeNextLightingRefreshDelay,
+  LIGHTING_AUTO_REFRESH_INTERVAL_MS,
+  shouldAutoRefreshLighting,
+} from "./lib/lighting-refresh";
 import { defaultScreen, primaryNavigation, type PrimaryScreen } from "./lib/navigation";
 import { buildHeaderChips, shouldShowDeviceCard } from "./lib/screen-chrome";
 import { buildWorkspaceContent } from "./lib/workspace";
@@ -100,8 +116,10 @@ const lightingModeOptions = [
   { value: "train", label: "Train" },
   { value: "fireworks", label: "Fireworks" },
 ];
+const keyboardLegendOverrides = buildKeyboardLegendOverrides();
 
 export function App() {
+  const assetKeyboardShellRef = useRef<HTMLDivElement | null>(null);
   const [dashboard, setDashboard] = useState<DashboardModel>(initialDashboard);
   const [activeScreen, setActiveScreen] = useState<PrimaryScreen>(defaultScreen);
   const [lastSync, setLastSync] = useState("Connecting to loopback API");
@@ -154,6 +172,14 @@ export function App() {
   const [profilesSaving, setProfilesSaving] = useState(false);
   const [profilesApplyingId, setProfilesApplyingId] = useState<string | null>(null);
   const [selectedSavedProfileId, setSelectedSavedProfileId] = useState<string | null>(null);
+  const [isDocumentVisible, setIsDocumentVisible] = useState(
+    typeof document === "undefined" ? true : document.visibilityState === "visible",
+  );
+  const [lastLightingInteractionAt, setLastLightingInteractionAt] = useState(() => Date.now());
+  const [lastLightingRefreshAt, setLastLightingRefreshAt] = useState(() => Date.now());
+  const [keyboardLegendPositions, setKeyboardLegendPositions] = useState<
+    Array<{ uiKey: string; label: string; leftPercent: number; topPercent: number }>
+  >([]);
   const deferredTraceEntries = useDeferredValue(dashboard.traceEntries);
   const workspaceContent = buildWorkspaceContent(activeScreen);
   const isLightingScreen = activeScreen === "Lighting";
@@ -161,6 +187,10 @@ export function App() {
   const isMacrosScreen = activeScreen === "Macros";
   const stagedEditCount = Object.keys(stagedLightingEdits).length;
   const stagedKeymapEditCount = Object.keys(stagedKeymapEdits).length;
+
+  function noteLightingInteraction() {
+    setLastLightingInteractionAt(Date.now());
+  }
 
   function formatSyncTimestamp(): string {
     return new Intl.DateTimeFormat(undefined, {
@@ -220,6 +250,7 @@ export function App() {
         setSelectedLightingKeyId((current) =>
           current && model.keys.some((entry) => entry.uiKey === current) ? current : null,
         );
+        setLastLightingRefreshAt(Date.now());
       });
     } catch (error) {
       setLightingError(
@@ -229,6 +260,15 @@ export function App() {
       setLightingLoading(false);
     }
   }
+
+  useEffect(() => {
+    function handleVisibilityChange() {
+      setIsDocumentVisible(document.visibilityState === "visible");
+    }
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, []);
 
   async function hydrateKeymapState() {
     setKeymapLoading(true);
@@ -459,16 +499,26 @@ export function App() {
   }, [isMacrosScreen]);
 
   useEffect(() => {
-    if (!isLightingScreen || stagedEditCount > 0) {
+    if (
+      !shouldAutoRefreshLighting({
+        isLightingScreen,
+        stagedEditCount,
+        isDocumentVisible,
+      })
+    ) {
       return;
     }
 
-    const intervalId = window.setInterval(() => {
+    const timeoutId = window.setTimeout(() => {
       void hydrateLightingState();
-    }, 3000);
+    }, computeNextLightingRefreshDelay({
+      now: Date.now(),
+      lastRefreshAt: lastLightingRefreshAt,
+      lastInteractionAt: lastLightingInteractionAt,
+    }));
 
-    return () => window.clearInterval(intervalId);
-  }, [isLightingScreen, stagedEditCount]);
+    return () => window.clearTimeout(timeoutId);
+  }, [isLightingScreen, stagedEditCount, isDocumentVisible, lastLightingInteractionAt, lastLightingRefreshAt]);
 
   const renderedLightingKeys =
     isLightingScreen && lightingModel
@@ -638,6 +688,7 @@ export function App() {
     if (!lightingKeyMap.has(keyId)) {
       return;
     }
+    noteLightingInteraction();
     setSelectedLightingKeyId(keyId);
   }
 
@@ -646,6 +697,7 @@ export function App() {
       return;
     }
 
+    noteLightingInteraction();
     setLightingColorInput(nextColor.toLowerCase());
     const normalized = normalizeColorInput(nextColor);
     if (!normalized) {
@@ -659,6 +711,7 @@ export function App() {
   }
 
   function handleBoardPreset(edits: Record<string, string>) {
+    noteLightingInteraction();
     setStagedLightingEdits(edits);
   }
 
@@ -667,6 +720,7 @@ export function App() {
       return;
     }
 
+    noteLightingInteraction();
     setLightingApplying(true);
     setLightingError(null);
 
@@ -689,6 +743,7 @@ export function App() {
   }
 
   async function handleResetLighting() {
+    noteLightingInteraction();
     setStagedLightingEdits({});
     await hydrateLightingState();
   }
@@ -698,6 +753,7 @@ export function App() {
       return;
     }
 
+    noteLightingInteraction();
     setGlobalLightingApplying(true);
     setLightingError(null);
 
@@ -946,15 +1002,10 @@ export function App() {
       : keyboardSurfaceSvg && keyboardAsset && isKeymapScreen
         ? applyLightingColorsToSvg(
             keyboardSurfaceSvg,
-            new Map(
-              keymapAssignments.map((assignment) => [
-                assignment.svgId,
-                stagedKeymapEdits[assignment.uiKey] ? "#355c7d" : "#273240",
-              ]),
-            ),
+            buildKeymapColorsBySvgId(keymapAssignments, stagedKeymapEdits),
             selectedKeymapSvgId,
           )
-      : keyboardSurfaceSvg && keyboardAsset && isMacrosScreen
+        : keyboardSurfaceSvg && keyboardAsset && isMacrosScreen
         ? applyLightingColorsToSvg(
             keyboardSurfaceSvg,
             new Map(
@@ -970,7 +1021,11 @@ export function App() {
       : null;
 
   const refreshStateLabel =
-    stagedEditCount === 0 ? "Auto-refresh live" : "Refresh paused while dirty";
+    stagedEditCount > 0
+      ? "Refresh paused while dirty"
+      : !isDocumentVisible
+        ? "Refresh paused in background"
+        : `Idle refresh every ${LIGHTING_AUTO_REFRESH_INTERVAL_MS / 1000}s`;
   const pageGridClass =
     activeScreen === "Lighting" || activeScreen === "Keymap" || activeScreen === "Macros"
       ? "page-grid lighting-grid"
@@ -979,6 +1034,102 @@ export function App() {
         : activeScreen === "Events"
           ? "page-grid events-grid"
           : "page-grid standard-grid";
+
+  useEffect(() => {
+    const shell = assetKeyboardShellRef.current;
+    if (!shell || !keyboardAsset || !renderedKeyboardSurfaceSvg) {
+      setKeyboardLegendPositions([]);
+      return;
+    }
+    const currentKeyboardAsset = keyboardAsset;
+
+    let cancelled = false;
+
+    function computeLegendPositions() {
+      const currentShell = assetKeyboardShellRef.current;
+      if (!currentShell) {
+        return;
+      }
+
+      const svg = currentShell.querySelector(".asset-keyboard-rgb svg");
+      if (!(svg instanceof SVGSVGElement)) {
+        return;
+      }
+
+      const shellRect = currentShell.getBoundingClientRect();
+      const nextPositions = keyboardLegendOverrides.flatMap((override) => {
+        const assetKey = currentKeyboardAsset.keysByUiKey.get(override.uiKey);
+        if (!assetKey) {
+          return [];
+        }
+
+        const selector = `#${assetKey.svgId.replace(/[ !"#$%&'()*+,./:;<=>?@[\\\]^`{|}~]/g, "\\$&")}`;
+        const keyElement = svg.querySelector(selector);
+        if (!(keyElement instanceof SVGGraphicsElement)) {
+          return [];
+        }
+
+        const rect = keyElement.getBoundingClientRect();
+        return [
+          {
+            uiKey: override.uiKey,
+            label: override.label,
+            leftPercent: (((rect.left - shellRect.left) + rect.width / 2) / shellRect.width) * 100,
+            topPercent: (((rect.top - shellRect.top) + rect.height * 0.78) / shellRect.height) * 100,
+          },
+        ];
+      });
+
+      if (!cancelled) {
+        setKeyboardLegendPositions(nextPositions);
+      }
+    }
+
+    const frameId = window.requestAnimationFrame(computeLegendPositions);
+    window.addEventListener("resize", computeLegendPositions);
+
+    return () => {
+      cancelled = true;
+      window.cancelAnimationFrame(frameId);
+      window.removeEventListener("resize", computeLegendPositions);
+    };
+  }, [keyboardAsset, renderedKeyboardSurfaceSvg]);
+
+  function renderAssetKeyboardShell(ariaLabel: string) {
+    return (
+      <div className="asset-keyboard-shell" ref={assetKeyboardShellRef}>
+        <img
+          alt=""
+          aria-hidden="true"
+          className="asset-keyboard-layer asset-keyboard-base"
+          src={keyboardAsset?.baseImageUrl}
+        />
+        <div
+          aria-label={ariaLabel}
+          className="asset-keyboard-layer asset-keyboard-rgb"
+          onClick={handleKeyboardSurfaceClick}
+          dangerouslySetInnerHTML={{ __html: renderedKeyboardSurfaceSvg ?? "" }}
+        />
+        <img
+          alt=""
+          aria-hidden="true"
+          className="asset-keyboard-layer asset-keyboard-letters"
+          src={keyboardAsset?.lettersImageUrl}
+        />
+        <div aria-hidden="true" className="asset-keyboard-layer asset-keyboard-legends">
+          {keyboardLegendPositions.map((entry) => (
+            <span
+              className="asset-keyboard-legend"
+              key={entry.uiKey}
+              style={{ left: `${entry.leftPercent}%`, top: `${entry.topPercent}%` }}
+            >
+              {entry.label}
+            </span>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <main className="launcher-shell">
@@ -1083,26 +1234,7 @@ export function App() {
                       <p>Fetching the vendored Swarm75 assets and live lighting state.</p>
                     </div>
                   ) : (
-                    <div className="asset-keyboard-shell">
-                      <img
-                        alt=""
-                        aria-hidden="true"
-                        className="asset-keyboard-layer asset-keyboard-base"
-                        src={keyboardAsset.baseImageUrl}
-                      />
-                      <div
-                        aria-label="Lighting editor keyboard"
-                        className="asset-keyboard-layer asset-keyboard-rgb"
-                        onClick={handleKeyboardSurfaceClick}
-                        dangerouslySetInnerHTML={{ __html: renderedKeyboardSurfaceSvg }}
-                      />
-                      <img
-                        alt=""
-                        aria-hidden="true"
-                        className="asset-keyboard-layer asset-keyboard-letters"
-                        src={keyboardAsset.lettersImageUrl}
-                      />
-                    </div>
+                    renderAssetKeyboardShell("Lighting editor keyboard")
                   )}
                 </div>
               </section>
@@ -1128,26 +1260,7 @@ export function App() {
                       <p>Fetching the vendored Swarm75 assets and live key assignments.</p>
                     </div>
                   ) : (
-                    <div className="asset-keyboard-shell">
-                      <img
-                        alt=""
-                        aria-hidden="true"
-                        className="asset-keyboard-layer asset-keyboard-base"
-                        src={keyboardAsset.baseImageUrl}
-                      />
-                      <div
-                        aria-label="Keymap editor keyboard"
-                        className="asset-keyboard-layer asset-keyboard-rgb"
-                        onClick={handleKeyboardSurfaceClick}
-                        dangerouslySetInnerHTML={{ __html: renderedKeyboardSurfaceSvg }}
-                      />
-                      <img
-                        alt=""
-                        aria-hidden="true"
-                        className="asset-keyboard-layer asset-keyboard-letters"
-                        src={keyboardAsset.lettersImageUrl}
-                      />
-                    </div>
+                    renderAssetKeyboardShell("Keymap editor keyboard")
                   )}
                 </div>
               </section>
@@ -1180,26 +1293,7 @@ export function App() {
                       <p>{macrosModel?.reason ?? "Macros require wired USB mode on this keyboard."}</p>
                     </div>
                   ) : (
-                    <div className="asset-keyboard-shell">
-                      <img
-                        alt=""
-                        aria-hidden="true"
-                        className="asset-keyboard-layer asset-keyboard-base"
-                        src={keyboardAsset.baseImageUrl}
-                      />
-                      <div
-                        aria-label="Macros editor keyboard"
-                        className="asset-keyboard-layer asset-keyboard-rgb"
-                        onClick={handleKeyboardSurfaceClick}
-                        dangerouslySetInnerHTML={{ __html: renderedKeyboardSurfaceSvg }}
-                      />
-                      <img
-                        alt=""
-                        aria-hidden="true"
-                        className="asset-keyboard-layer asset-keyboard-letters"
-                        src={keyboardAsset.lettersImageUrl}
-                      />
-                    </div>
+                    renderAssetKeyboardShell("Macros editor keyboard")
                   )}
                 </div>
               </section>
@@ -1433,7 +1527,10 @@ export function App() {
                         <span className="meta-label">Mode</span>
                         <DropdownSelect
                           ariaLabel="Select lighting mode"
-                          onChange={setGlobalLightingMode}
+                          onChange={(value) => {
+                            noteLightingInteraction();
+                            setGlobalLightingMode(value);
+                          }}
                           options={lightingModeDropdownOptions}
                           value={globalLightingMode}
                         />
@@ -1443,7 +1540,10 @@ export function App() {
                         <input
                           max="100"
                           min="0"
-                          onChange={(event) => setGlobalLightingBrightness(event.target.value)}
+                          onChange={(event) => {
+                            noteLightingInteraction();
+                            setGlobalLightingBrightness(event.target.value);
+                          }}
                           step="5"
                           type="range"
                           value={globalLightingBrightness}
@@ -1454,7 +1554,10 @@ export function App() {
                         <label className="color-control">
                           <span className="meta-label">Static color</span>
                           <input
-                            onChange={(event) => setGlobalLightingColor(event.target.value)}
+                            onChange={(event) => {
+                              noteLightingInteraction();
+                              setGlobalLightingColor(event.target.value);
+                            }}
                             type="color"
                             value={normalizeColorInput(globalLightingColor) ?? "#00ffaa"}
                           />

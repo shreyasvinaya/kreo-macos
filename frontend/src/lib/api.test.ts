@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, mock, test } from "bun:test";
 
 import {
+  applyKeymapEdits,
   applyGlobalLighting,
   deleteMacro,
   loadDashboardModel,
@@ -111,6 +112,23 @@ describe("loadDashboardModel", () => {
                     },
                   },
                 },
+                macros: {
+                  supported: true,
+                  reason: null,
+                  slots: [
+                    {
+                      slot_id: 0,
+                      name: "Copy Burst",
+                      execution_type: "FIXED_COUNT",
+                      cycle_times: 2,
+                      bound_ui_keys: ["right_opt"],
+                      actions: [
+                        { key: "c", event_type: "press", delay_ms: 10 },
+                        { key: "c", event_type: "release", delay_ms: 20 },
+                      ],
+                    },
+                  ],
+                },
               },
             ],
           }),
@@ -167,6 +185,23 @@ describe("loadSavedProfiles", () => {
                     },
                   },
                 },
+                macros: {
+                  supported: true,
+                  reason: null,
+                  slots: [
+                    {
+                      slot_id: 0,
+                      name: "Copy Burst",
+                      execution_type: "FIXED_COUNT",
+                      cycle_times: 2,
+                      bound_ui_keys: ["right_opt"],
+                      actions: [
+                        { key: "c", event_type: "press", delay_ms: 10 },
+                        { key: "c", event_type: "release", delay_ms: 20 },
+                      ],
+                    },
+                  ],
+                },
               },
             ],
           }),
@@ -183,6 +218,7 @@ describe("loadSavedProfiles", () => {
     expect(profiles.activeSnapshotId).toBe("desk-setup");
     expect(profiles.snapshots[0]?.lighting.keys.esc).toBe("#ff0000");
     expect(profiles.snapshots[0]?.keymap.assignments.esc?.fnRawValue).toBe(33554658);
+    expect(profiles.snapshots[0]?.macros.slots[0]?.name).toBe("Copy Burst");
   });
 });
 
@@ -266,6 +302,33 @@ describe("loadKeymapModel", () => {
     expect(model.assignments[0]?.uiKey).toBe("right_opt");
     expect(model.assignments[0]?.baseAction.rawValue).toBe(4194304);
     expect(model.availableActions[0]?.actionId).toBe("disabled");
+  });
+});
+
+describe("applyKeymapEdits", () => {
+  test("surfaces backend detail text for protocol errors", async () => {
+    globalThis.fetch = mock(async (input: string | URL | Request) => {
+      const url = typeof input === "string" ? input : input.toString();
+
+      if (url === "/api/keymap/apply") {
+        return new Response(
+          JSON.stringify({
+            detail: "FN-layer remapping is not verified on this keyboard yet",
+          }),
+          { status: 422 },
+        );
+      }
+
+      throw new Error(`unexpected fetch: ${url}`);
+    }) as unknown as typeof fetch;
+
+    await expect(
+      applyKeymapEdits({
+        right_opt: {
+          fn_raw_value: 33554637,
+        },
+      }),
+    ).rejects.toThrow("FN-layer remapping is not verified on this keyboard yet");
   });
 });
 

@@ -3,7 +3,7 @@ from typing import cast
 from fastapi.testclient import TestClient
 
 from kreo_kontrol.api.app import create_app
-from kreo_kontrol.device.bytech_lighting import LightingController
+from kreo_kontrol.device.bytech_lighting import LightingController, LightingProtocolError
 
 
 class FakeKeymapController:
@@ -88,6 +88,11 @@ class FakeKeymapController:
         return payload
 
 
+class RejectingKeymapController(FakeKeymapController):
+    def apply_keymap(self, edits):
+        raise LightingProtocolError("FN-layer remapping is not verified on this keyboard yet")
+
+
 def test_keymap_endpoint_returns_typed_assignments() -> None:
     client = TestClient(
         create_app(lighting_controller=cast(LightingController, FakeKeymapController()))
@@ -124,3 +129,26 @@ def test_keymap_apply_endpoint_returns_updated_assignment_payload() -> None:
     payload = response.json()
     assert payload["verification_status"] == "unverified"
     assert payload["assignments"][0]["base_action"]["raw_value"] == 262144
+
+
+def test_keymap_apply_endpoint_converts_protocol_errors_to_422() -> None:
+    client = TestClient(
+        create_app(lighting_controller=cast(LightingController, RejectingKeymapController()))
+    )
+
+    response = client.post(
+        "/api/keymap/apply",
+        json={
+            "edits": {
+                "right_opt": {
+                    "base_raw_value": None,
+                    "fn_raw_value": 33554637,
+                }
+            }
+        },
+    )
+
+    assert response.status_code == 422
+    assert response.json() == {
+        "detail": "FN-layer remapping is not verified on this keyboard yet"
+    }

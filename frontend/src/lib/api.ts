@@ -66,6 +66,11 @@ export interface SavedProfileModel {
   keymap: {
     assignments: Record<string, SavedKeymapAssignmentModel>;
   };
+  macros: {
+    supported: boolean;
+    reason: string | null;
+    slots: MacroSlotModel[];
+  };
 }
 
 export interface SavedProfilesModel {
@@ -167,6 +172,11 @@ interface SavedProfileResponse {
   };
   keymap: {
     assignments: Record<string, SavedKeymapAssignmentResponse>;
+  };
+  macros: {
+    supported: boolean;
+    reason: string | null;
+    slots: MacroSlotResponse[];
   };
 }
 
@@ -385,6 +395,22 @@ function normalizeSavedProfile(payload: SavedProfileResponse): SavedProfileModel
         ]),
       ),
     },
+    macros: {
+      supported: payload.macros.supported,
+      reason: payload.macros.reason,
+      slots: payload.macros.slots.map((slot) => ({
+        slotId: slot.slot_id,
+        name: slot.name,
+        executionType: slot.execution_type,
+        cycleTimes: slot.cycle_times,
+        boundUiKeys: slot.bound_ui_keys,
+        actions: slot.actions.map((action) => ({
+          key: action.key,
+          eventType: action.event_type,
+          delayMs: action.delay_ms,
+        })),
+      })),
+    },
   };
 }
 
@@ -573,7 +599,16 @@ export async function applyKeymapEdits(
     body: JSON.stringify({ edits }),
   });
   if (!response.ok) {
-    throw new Error(`keymap apply endpoint returned ${response.status}`);
+    let detail = `keymap apply endpoint returned ${response.status}`;
+    try {
+      const payload = (await response.json()) as { detail?: string };
+      if (typeof payload.detail === "string" && payload.detail.length > 0) {
+        detail = payload.detail;
+      }
+    } catch {
+      // Keep the status-based fallback error when the response is not JSON.
+    }
+    throw new Error(detail);
   }
 
   const payload = (await response.json()) as KeymapResponse;

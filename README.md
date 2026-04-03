@@ -12,6 +12,25 @@ The Python side owns HID access, supported-device discovery, transport helpers, 
 uv run kreo-kontrol
 ```
 
+### Capture modifier evidence
+
+Run:
+
+```sh
+uv run kreo-kontrol-capture-modifiers
+```
+
+The script guides you through the confusing modifier/remap keys and writes a JSON results file under `captures/`.
+
+### Saved profiles
+
+Saved profiles are app-side snapshots. They currently replay:
+
+- lighting state
+- base-layer key remaps
+
+FN-layer remap replay remains disabled until that protocol path is verified on this keyboard.
+
 ### Backend verification
 
 ```sh

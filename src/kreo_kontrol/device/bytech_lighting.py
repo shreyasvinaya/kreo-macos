@@ -211,19 +211,20 @@ HID_VALUE_TO_UI_KEY: dict[int, tuple[str, str]] = {
     82: ("up", "Up"),
     224: ("left_ctrl", "Control"),
     225: ("left_shift", "Shift"),
-    226: ("left_opt", "Command"),
-    227: ("left_cmd", "Option"),
+    226: ("left_opt", "Option"),
+    227: ("left_cmd", "Command"),
     228: ("right_ctrl", "Control"),
     229: ("right_shift", "Shift"),
-    230: ("right_opt", "Command"),
-    231: ("right_cmd", "Option"),
+    230: ("right_opt", "Option"),
+    231: ("right_cmd", "Command"),
     0x00010000: ("left_ctrl", "Control"),
     0x00020000: ("left_shift", "Shift"),
-    0x00040000: ("left_opt", "Command"),
-    0x00080000: ("left_cmd", "Option"),
+    0x00040000: ("left_opt", "Option"),
+    0x00080000: ("left_cmd", "Command"),
     0x00100000: ("right_ctrl", "Control"),
     0x00200000: ("right_shift", "Shift"),
-    0x00400000: ("right_opt", "Command"),
+    0x00400000: ("right_opt", "Option"),
+    0x00800000: ("right_cmd", "Command"),
     0x0D000000: ("fn", "Fn"),
 }
 MACRO_UI_KEY_TO_CODE: dict[str, int] = {
@@ -680,6 +681,8 @@ def build_keymap_action_catalog() -> list[KeyActionOption]:
     for raw_value, (ui_key, label) in key_entries:
         if raw_value in seen_raw_values:
             continue
+        if ui_key in modifier_side_suffixes and raw_value <= 0xFF:
+            continue
         seen_raw_values.add(raw_value)
         is_modifier = ui_key.endswith(("ctrl", "shift", "cmd", "opt")) or ui_key == "fn"
         category = "Modifiers" if is_modifier else "Keys"
@@ -749,6 +752,28 @@ def decode_key_action(raw_value: int) -> KeyAction:
             label="Disabled",
             category="System",
             raw_value=0,
+        )
+
+    direct_mapping = HID_VALUE_TO_UI_KEY.get(raw_value)
+    if direct_mapping is not None:
+        ui_key, label = direct_mapping
+        side = {
+            "left_ctrl": "Left",
+            "left_shift": "Left",
+            "left_opt": "Left",
+            "left_cmd": "Left",
+            "right_ctrl": "Right",
+            "right_shift": "Right",
+            "right_opt": "Right",
+            "right_cmd": "Right",
+        }.get(ui_key)
+        return KeyAction(
+            action_id=f"basic:{ui_key}",
+            label=f"{label} {side}" if side else label,
+            category="Modifiers"
+            if ui_key.endswith(("ctrl", "shift", "cmd", "opt")) or ui_key == "fn"
+            else "Keys",
+            raw_value=raw_value,
         )
 
     action_type = (raw_value >> 24) & 0xFF
@@ -1287,22 +1312,39 @@ class BytechLightingController:
         self,
         edits: dict[str, dict[str, int | None]],
     ) -> KeymapPayload:
+        if any(edit.get("fn_raw_value") is not None for edit in edits.values()):
+            raise LightingProtocolError(
+                "FN-layer remapping is not verified on this keyboard yet"
+            )
+
         try:
             with self._open_device() as device:
                 base_records = self._read_key_records_for_layer(device, layer=0)
                 fn_records = self._read_key_records_for_layer(device, layer=1)
                 self._apply_keymap_edits_to_records(base_records, fn_records, edits)
                 self._write_key_records_for_layer(device, layer=0, records=base_records)
-                self._write_key_records_for_layer(device, layer=1, records=fn_records)
-                return self._read_keymap_from_device(device)
+                verified_base_records = self._read_key_records_for_layer(device, layer=0)
+                try:
+                    macros = self._read_macros_from_device(
+                        device,
+                        base_records=verified_base_records,
+                    )
+                    macro_slots = macros["slots"]
+                except (LightingProtocolError, IndexError):
+                    macro_slots = []
+                return self._build_keymap_payload(
+                    verified_base_records,
+                    fn_records,
+                    macro_slots,
+                )
         except LightingHardwareUnavailableError:
             with self._open_receiver_device() as device:
                 base_records = self._receiver_read_key_records_for_layer(device, layer=0)
                 fn_records = self._receiver_read_key_records_for_layer(device, layer=1)
                 self._apply_keymap_edits_to_records(base_records, fn_records, edits)
                 self._receiver_write_key_records_for_layer(device, layer=0, records=base_records)
-                self._receiver_write_key_records_for_layer(device, layer=1, records=fn_records)
-                return self._read_keymap_from_receiver(device)
+                verified_base_records = self._receiver_read_key_records_for_layer(device, layer=0)
+                return self._build_keymap_payload(verified_base_records, fn_records, [])
 
     def read_macros(self) -> MacrosPayload:
         try:

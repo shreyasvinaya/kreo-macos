@@ -10,3 +10,4 @@ frontend/dist/
 dist/
 build/
 kreo_website_dump/
+captures/*.json

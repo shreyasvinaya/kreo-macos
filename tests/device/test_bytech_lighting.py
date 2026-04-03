@@ -5,11 +5,14 @@ from collections import deque
 from pathlib import Path
 from typing import cast
 
+import pytest
+
 from kreo_kontrol.api.app import create_app
 from kreo_kontrol.device.bytech_lighting import (
     BytechLightingController,
     LightingController,
     LightingHardwareUnavailableError,
+    LightingProtocolError,
     build_demo_per_key_frame,
     build_keymap_action_catalog,
     build_per_key_frame,
@@ -627,11 +630,38 @@ def test_read_keymap_decodes_base_and_fn_assignments() -> None:
     assert right_opt_base_action["raw_value"] == 0x00400000
 
 
-def test_apply_keymap_writes_updated_base_and_fn_layers() -> None:
+def test_apply_keymap_rejects_combined_base_and_fn_layer_edits_until_verified() -> None:
     base_before = build_keymap_payload({220: 0x00400000})
     fn_before = build_keymap_payload({220: 0})
-    base_after = build_keymap_payload({220: 0x00040000})
-    fn_after = build_keymap_payload({220: 0x020000CD})
+    device = FakeHidDevice(
+        responses=[
+            wrap_keys_response(b"\x83\x00\x00\x01\x00\xf8\x01", base_before),
+            wrap_keys_response(b"\x83\x00\x01\x01\x00\xf8\x01", fn_before),
+        ]
+    )
+    controller = BytechLightingController(
+        device_path=b"test-device",
+        device_factory=lambda: device,
+    )
+
+    with pytest.raises(LightingProtocolError, match="FN-layer remapping is not verified"):
+        controller.apply_keymap(
+            {
+                "right_opt": {
+                    "base_raw_value": 0x00040000,
+                    "fn_raw_value": 0x020000CD,
+                }
+            }
+        )
+
+    assert device.sent_reports == []
+
+
+def test_apply_keymap_with_base_only_edit_writes_base_layer_only() -> None:
+    base_before = build_keymap_payload({220: 0x00400000})
+    fn_before = build_keymap_payload({220: 0x00400000})
+    base_after = build_keymap_payload({220: 0x00800000})
+    fn_after = build_keymap_payload({220: 0x00400000})
     device = FakeHidDevice(
         responses=[
             wrap_keys_response(b"\x83\x00\x00\x01\x00\xf8\x01", base_before),
@@ -645,14 +675,7 @@ def test_apply_keymap_writes_updated_base_and_fn_layers() -> None:
         device_factory=lambda: device,
     )
 
-    payload = controller.apply_keymap(
-        {
-            "right_opt": {
-                "base_raw_value": 0x00040000,
-                "fn_raw_value": 0x020000CD,
-            }
-        }
-    )
+    payload = controller.apply_keymap({"right_opt": {"base_raw_value": 0x00800000}})
 
     right_opt = next(
         assignment
@@ -660,23 +683,40 @@ def test_apply_keymap_writes_updated_base_and_fn_layers() -> None:
         if assignment["ui_key"] == "right_opt"
     )
     right_opt_base_action = cast(dict[str, object], right_opt["base_action"])
-    right_opt_fn_action = cast(dict[str, object], right_opt["fn_action"])
-    assert right_opt_base_action["raw_value"] == 0x00040000
-    assert right_opt_fn_action["raw_value"] == 0x020000CD
+    assert right_opt_base_action["raw_value"] == 0x00800000
     assert device.sent_reports[2][:8] == b"\x05\x03\x00\x00\x01\x00\xf8\x01"
-    assert device.sent_reports[3][:8] == b"\x05\x03\x00\x01\x01\x00\xf8\x01"
+    assert all(report[:8] != b"\x05\x03\x00\x01\x01\x00\xf8\x01" for report in device.sent_reports)
+
+
+def test_apply_keymap_rejects_fn_layer_edits_until_protocol_is_verified() -> None:
+    device = FakeHidDevice(responses=[])
+    controller = BytechLightingController(
+        device_path=b"test-device",
+        device_factory=lambda: device,
+    )
+
+    with pytest.raises(LightingProtocolError, match="FN-layer remapping is not verified"):
+        controller.apply_keymap({"right_opt": {"fn_raw_value": 0x020000CD}})
 
 
 def test_keymap_action_catalog_distinguishes_left_and_right_modifiers() -> None:
     catalog = build_keymap_action_catalog()
-    labels_by_action_id = {entry.action_id: entry.label for entry in catalog}
+    entries_by_action_id = {entry.action_id: entry for entry in catalog}
+    modifier_values = {
+        entry.raw_value
+        for entry in catalog
+        if entry.category == "Modifiers" and entry.action_id.startswith("basic:")
+    }
 
-    assert labels_by_action_id["basic:left_ctrl"] == "Control Left"
-    assert labels_by_action_id["basic:right_ctrl"] == "Control Right"
-    assert labels_by_action_id["basic:left_opt"] == "Command Left"
-    assert labels_by_action_id["basic:right_opt"] == "Command Right"
-    assert labels_by_action_id["basic:left_cmd"] == "Option Left"
-    assert labels_by_action_id["basic:right_cmd"] == "Option Right"
+    assert entries_by_action_id["basic:left_ctrl"].label == "Control Left"
+    assert entries_by_action_id["basic:right_ctrl"].label == "Control Right"
+    assert entries_by_action_id["basic:left_opt"].label == "Option Left"
+    assert entries_by_action_id["basic:right_opt"].label == "Option Right"
+    assert entries_by_action_id["basic:left_cmd"].label == "Command Left"
+    assert entries_by_action_id["basic:right_cmd"].label == "Command Right"
+    assert entries_by_action_id["basic:right_cmd"].raw_value == 0x00800000
+    assert 0xE7 not in modifier_values
+    assert 0xE6 not in modifier_values
 
 
 def test_apply_per_key_colors_writes_targeted_custom_frame() -> None:

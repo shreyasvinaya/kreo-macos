@@ -34,6 +34,11 @@ export interface KeyboardAssetModel {
   keysByUiKey: Map<string, KeyboardAssetKey>;
 }
 
+export interface KeyboardLegendOverride {
+  uiKey: string;
+  label: string;
+}
+
 export function normalizeKeyboardAsset(payload: KeyboardAssetResponse): KeyboardAssetModel {
   const keys = payload.keys.map((entry) => ({
     logicalId: entry.logical_id,
@@ -53,6 +58,16 @@ export function normalizeKeyboardAsset(payload: KeyboardAssetResponse): Keyboard
     keysBySvgId: new Map(keys.map((entry) => [entry.svgId, entry])),
     keysByUiKey: new Map(keys.map((entry) => [entry.uiKey, entry])),
   };
+}
+
+export function buildKeyboardLegendOverrides(): KeyboardLegendOverride[] {
+  return [
+    { uiKey: "left_ctrl", label: "Control" },
+    { uiKey: "left_cmd", label: "Option" },
+    { uiKey: "left_opt", label: "Command" },
+    { uiKey: "right_opt", label: "Command" },
+    { uiKey: "right_ctrl", label: "Control" },
+  ];
 }
 
 export function applyLightingColorsToSvg(
