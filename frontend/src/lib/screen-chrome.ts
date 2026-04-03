@@ -7,6 +7,11 @@ interface HeaderChipInput {
   syncState: string;
 }
 
+export interface HeaderChip {
+  kind: "profile" | "connection" | "text";
+  label: string;
+}
+
 export function shouldShowDeviceCard(screen: PrimaryScreen): boolean {
   return screen === "Device";
 }
@@ -14,18 +19,28 @@ export function shouldShowDeviceCard(screen: PrimaryScreen): boolean {
 export function buildHeaderChips(
   screen: PrimaryScreen,
   input: HeaderChipInput,
-): string[] {
+): HeaderChip[] {
   if (screen === "Lighting") {
-    return [input.activeProfile, input.connectionLabel];
+    return [
+      { kind: "profile", label: input.activeProfile },
+      { kind: "connection", label: input.connectionLabel },
+    ];
   }
 
   if (screen === "Device") {
-    return [input.connectionLabel, input.activeProfile];
+    return [
+      { kind: "connection", label: input.connectionLabel },
+      { kind: "profile", label: input.activeProfile },
+    ];
   }
 
   if (screen === "Events") {
-    return [input.connectionLabel];
+    return [{ kind: "connection", label: input.connectionLabel }];
   }
 
-  return [input.activeProfile, input.syncState, input.firmware];
+  return [
+    { kind: "profile", label: input.activeProfile },
+    { kind: "text", label: input.syncState },
+    { kind: "text", label: input.firmware },
+  ];
 }

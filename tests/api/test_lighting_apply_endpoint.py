@@ -27,3 +27,17 @@ def test_lighting_apply_endpoint_rejects_non_static_color() -> None:
     )
 
     assert response.status_code == 422
+
+
+def test_lighting_apply_endpoint_accepts_effect_modes_without_color() -> None:
+    client = TestClient(create_app())
+
+    response = client.post(
+        "/api/lighting/apply",
+        json={"mode": "wave", "brightness": 50},
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["mode"] == "wave"
+    assert payload["brightness"] == 50

@@ -1,0 +1,1283 @@
+{
+  "active_snapshot_id": "5a230a33-caf2-48d4-b22d-dfbeb4df0aa1",
+  "snapshots": [
+    {
+      "snapshot_id": "63663a71-178d-4611-84ec-bc149a95f730",
+      "name": "Desk Setup",
+      "updated_at": "2026-04-03T15:50:16.637326+00:00",
+      "lighting": {
+        "mode": "custom",
+        "brightness": 100,
+        "color": null,
+        "keys": {
+          "esc": "#ff0000",
+          "`": "#ffca00",
+          "tab": "#5aff00",
+          "caps": "#00ff80",
+          "left_shift": "#00b4ff",
+          "left_ctrl": "#0600ff",
+          "1": "#ffda00",
+          "q": "#4bff00",
+          "a": "#00ff8f",
+          "z": "#00a5ff",
+          "left_cmd": "#1600ff",
+          "f1": "#ff1000",
+          "2": "#ffe900",
+          "w": "#3bff00",
+          "s": "#00ff9f",
+          "x": "#0095ff",
+          "left_opt": "#2500ff",
+          "f2": "#ff1f00",
+          "3": "#fff900",
+          "e": "#2cff00",
+          "d": "#00ffae",
+          "c": "#0086ff",
+          "f3": "#ff2f00",
+          "4": "#f6ff00",
+          "r": "#1cff00",
+          "f": "#00ffbe",
+          "v": "#0076ff",
+          "f4": "#ff3e00",
+          "5": "#e6ff00",
+          "t": "#0cff00",
+          "g": "#00ffcd",
+          "b": "#0067ff",
+          "space": "#3500ff",
+          "f5": "#ff4e00",
+          "6": "#d7ff00",
+          "y": "#00ff03",
+          "h": "#00ffdd",
+          "n": "#0057ff",
+          "f6": "#ff5d00",
+          "7": "#c7ff00",
+          "u": "#00ff13",
+          "j": "#00ffec",
+          "m": "#0048ff",
+          "f7": "#ff6d00",
+          "8": "#b7ff00",
+          "i": "#00ff22",
+          "k": "#00fffc",
+          ",": "#0038ff",
+          "right_opt": "#4400ff",
+          "f8": "#ff7c00",
+          "9": "#a8ff00",
+          "o": "#00ff32",
+          "l": "#00f3ff",
+          ".": "#0028ff",
+          "fn": "#5400ff",
+          "f9": "#ff8c00",
+          "0": "#98ff00",
+          "p": "#00ff41",
+          ";": "#00e3ff",
+          "/": "#0019ff",
+          "right_ctrl": "#6400ff",
+          "f10": "#ff9b00",
+          "-": "#89ff00",
+          "[": "#00ff51",
+          "'": "#00d3ff",
+          "f11": "#ffab00",
+          "=": "#79ff00",
+          "]": "#00ff60",
+          "f12": "#ffbb00",
+          "backspace": "#6aff00",
+          "\\": "#00ff70",
+          "enter": "#00c4ff",
+          "right_shift": "#0009ff",
+          "left": "#d000ff",
+          "print_screen": "#7300ff",
+          "up": "#c100ff",
+          "down": "#e000ff",
+          "delete": "#8300ff",
+          "page_up": "#9200ff",
+          "page_down": "#a200ff",
+          "end": "#b100ff",
+          "right": "#ef00ff"
+        }
+      },
+      "keymap": {
+        "assignments": {
+          "esc": {
+            "base_raw_value": 41,
+            "fn_raw_value": 41
+          },
+          "f1": {
+            "base_raw_value": 58,
+            "fn_raw_value": 58
+          },
+          "f2": {
+            "base_raw_value": 59,
+            "fn_raw_value": 59
+          },
+          "f3": {
+            "base_raw_value": 60,
+            "fn_raw_value": 60
+          },
+          "f4": {
+            "base_raw_value": 61,
+            "fn_raw_value": 61
+          },
+          "f5": {
+            "base_raw_value": 62,
+            "fn_raw_value": 62
+          },
+          "f6": {
+            "base_raw_value": 63,
+            "fn_raw_value": 63
+          },
+          "f7": {
+            "base_raw_value": 64,
+            "fn_raw_value": 64
+          },
+          "f8": {
+            "base_raw_value": 65,
+            "fn_raw_value": 65
+          },
+          "f9": {
+            "base_raw_value": 66,
+            "fn_raw_value": 66
+          },
+          "f10": {
+            "base_raw_value": 67,
+            "fn_raw_value": 67
+          },
+          "f11": {
+            "base_raw_value": 68,
+            "fn_raw_value": 68
+          },
+          "f12": {
+            "base_raw_value": 69,
+            "fn_raw_value": 69
+          },
+          "print_screen": {
+            "base_raw_value": 70,
+            "fn_raw_value": 70
+          },
+          "`": {
+            "base_raw_value": 53,
+            "fn_raw_value": 53
+          },
+          "1": {
+            "base_raw_value": 30,
+            "fn_raw_value": 30
+          },
+          "2": {
+            "base_raw_value": 31,
+            "fn_raw_value": 31
+          },
+          "3": {
+            "base_raw_value": 32,
+            "fn_raw_value": 32
+          },
+          "4": {
+            "base_raw_value": 33,
+            "fn_raw_value": 33
+          },
+          "5": {
+            "base_raw_value": 34,
+            "fn_raw_value": 34
+          },
+          "6": {
+            "base_raw_value": 35,
+            "fn_raw_value": 35
+          },
+          "7": {
+            "base_raw_value": 36,
+            "fn_raw_value": 36
+          },
+          "8": {
+            "base_raw_value": 37,
+            "fn_raw_value": 37
+          },
+          "9": {
+            "base_raw_value": 38,
+            "fn_raw_value": 38
+          },
+          "0": {
+            "base_raw_value": 39,
+            "fn_raw_value": 39
+          },
+          "-": {
+            "base_raw_value": 45,
+            "fn_raw_value": 45
+          },
+          "=": {
+            "base_raw_value": 46,
+            "fn_raw_value": 46
+          },
+          "backspace": {
+            "base_raw_value": 42,
+            "fn_raw_value": 42
+          },
+          "tab": {
+            "base_raw_value": 43,
+            "fn_raw_value": 43
+          },
+          "q": {
+            "base_raw_value": 20,
+            "fn_raw_value": 20
+          },
+          "w": {
+            "base_raw_value": 26,
+            "fn_raw_value": 26
+          },
+          "e": {
+            "base_raw_value": 8,
+            "fn_raw_value": 8
+          },
+          "r": {
+            "base_raw_value": 21,
+            "fn_raw_value": 21
+          },
+          "t": {
+            "base_raw_value": 23,
+            "fn_raw_value": 23
+          },
+          "y": {
+            "base_raw_value": 28,
+            "fn_raw_value": 28
+          },
+          "u": {
+            "base_raw_value": 24,
+            "fn_raw_value": 24
+          },
+          "i": {
+            "base_raw_value": 12,
+            "fn_raw_value": 12
+          },
+          "o": {
+            "base_raw_value": 18,
+            "fn_raw_value": 18
+          },
+          "p": {
+            "base_raw_value": 19,
+            "fn_raw_value": 19
+          },
+          "[": {
+            "base_raw_value": 47,
+            "fn_raw_value": 47
+          },
+          "]": {
+            "base_raw_value": 48,
+            "fn_raw_value": 48
+          },
+          "\\": {
+            "base_raw_value": 49,
+            "fn_raw_value": 49
+          },
+          "caps": {
+            "base_raw_value": 57,
+            "fn_raw_value": 57
+          },
+          "a": {
+            "base_raw_value": 4,
+            "fn_raw_value": 4
+          },
+          "s": {
+            "base_raw_value": 22,
+            "fn_raw_value": 22
+          },
+          "d": {
+            "base_raw_value": 7,
+            "fn_raw_value": 7
+          },
+          "f": {
+            "base_raw_value": 9,
+            "fn_raw_value": 9
+          },
+          "g": {
+            "base_raw_value": 10,
+            "fn_raw_value": 10
+          },
+          "h": {
+            "base_raw_value": 11,
+            "fn_raw_value": 11
+          },
+          "j": {
+            "base_raw_value": 13,
+            "fn_raw_value": 13
+          },
+          "k": {
+            "base_raw_value": 14,
+            "fn_raw_value": 14
+          },
+          "l": {
+            "base_raw_value": 15,
+            "fn_raw_value": 15
+          },
+          ";": {
+            "base_raw_value": 51,
+            "fn_raw_value": 51
+          },
+          "'": {
+            "base_raw_value": 52,
+            "fn_raw_value": 52
+          },
+          "enter": {
+            "base_raw_value": 40,
+            "fn_raw_value": 40
+          },
+          "left_shift": {
+            "base_raw_value": 131072,
+            "fn_raw_value": 131072
+          },
+          "z": {
+            "base_raw_value": 29,
+            "fn_raw_value": 29
+          },
+          "x": {
+            "base_raw_value": 27,
+            "fn_raw_value": 27
+          },
+          "c": {
+            "base_raw_value": 6,
+            "fn_raw_value": 6
+          },
+          "v": {
+            "base_raw_value": 25,
+            "fn_raw_value": 25
+          },
+          "b": {
+            "base_raw_value": 5,
+            "fn_raw_value": 5
+          },
+          "n": {
+            "base_raw_value": 17,
+            "fn_raw_value": 17
+          },
+          "m": {
+            "base_raw_value": 16,
+            "fn_raw_value": 16
+          },
+          ",": {
+            "base_raw_value": 54,
+            "fn_raw_value": 54
+          },
+          ".": {
+            "base_raw_value": 55,
+            "fn_raw_value": 55
+          },
+          "/": {
+            "base_raw_value": 56,
+            "fn_raw_value": 56
+          },
+          "right_shift": {
+            "base_raw_value": 2097152,
+            "fn_raw_value": 2097152
+          },
+          "left_ctrl": {
+            "base_raw_value": 65536,
+            "fn_raw_value": 65536
+          },
+          "left_cmd": {
+            "base_raw_value": 524288,
+            "fn_raw_value": 524288
+          },
+          "left_opt": {
+            "base_raw_value": 262144,
+            "fn_raw_value": 262144
+          },
+          "space": {
+            "base_raw_value": 44,
+            "fn_raw_value": 44
+          },
+          "right_opt": {
+            "base_raw_value": 4194304,
+            "fn_raw_value": 4194304
+          },
+          "fn": {
+            "base_raw_value": 218103808,
+            "fn_raw_value": 218103808
+          },
+          "right_ctrl": {
+            "base_raw_value": 1048576,
+            "fn_raw_value": 1048576
+          },
+          "up": {
+            "base_raw_value": 82,
+            "fn_raw_value": 82
+          },
+          "left": {
+            "base_raw_value": 80,
+            "fn_raw_value": 80
+          },
+          "down": {
+            "base_raw_value": 81,
+            "fn_raw_value": 81
+          },
+          "right": {
+            "base_raw_value": 79,
+            "fn_raw_value": 79
+          },
+          "delete": {
+            "base_raw_value": 76,
+            "fn_raw_value": 76
+          },
+          "page_up": {
+            "base_raw_value": 75,
+            "fn_raw_value": 75
+          },
+          "page_down": {
+            "base_raw_value": 78,
+            "fn_raw_value": 78
+          },
+          "end": {
+            "base_raw_value": 77,
+            "fn_raw_value": 77
+          }
+        }
+      }
+    },
+    {
+      "snapshot_id": "5a230a33-caf2-48d4-b22d-dfbeb4df0aa1",
+      "name": "Desk Setup 2",
+      "updated_at": "2026-04-03T15:50:22.902864+00:00",
+      "lighting": {
+        "mode": "custom",
+        "brightness": 100,
+        "color": null,
+        "keys": {
+          "esc": "#ff0000",
+          "`": "#ffca00",
+          "tab": "#5aff00",
+          "caps": "#00ff80",
+          "left_shift": "#00b4ff",
+          "left_ctrl": "#0600ff",
+          "1": "#ffda00",
+          "q": "#4bff00",
+          "a": "#00ff8f",
+          "z": "#00a5ff",
+          "left_cmd": "#1600ff",
+          "f1": "#ff1000",
+          "2": "#ffe900",
+          "w": "#3bff00",
+          "s": "#00ff9f",
+          "x": "#0095ff",
+          "left_opt": "#2500ff",
+          "f2": "#ff1f00",
+          "3": "#fff900",
+          "e": "#2cff00",
+          "d": "#00ffae",
+          "c": "#0086ff",
+          "f3": "#ff2f00",
+          "4": "#f6ff00",
+          "r": "#1cff00",
+          "f": "#00ffbe",
+          "v": "#0076ff",
+          "f4": "#ff3e00",
+          "5": "#e6ff00",
+          "t": "#0cff00",
+          "g": "#00ffcd",
+          "b": "#0067ff",
+          "space": "#3500ff",
+          "f5": "#ff4e00",
+          "6": "#d7ff00",
+          "y": "#00ff03",
+          "h": "#00ffdd",
+          "n": "#0057ff",
+          "f6": "#ff5d00",
+          "7": "#c7ff00",
+          "u": "#00ff13",
+          "j": "#00ffec",
+          "m": "#0048ff",
+          "f7": "#ff6d00",
+          "8": "#b7ff00",
+          "i": "#00ff22",
+          "k": "#00fffc",
+          ",": "#0038ff",
+          "right_opt": "#4400ff",
+          "f8": "#ff7c00",
+          "9": "#a8ff00",
+          "o": "#00ff32",
+          "l": "#00f3ff",
+          ".": "#0028ff",
+          "fn": "#5400ff",
+          "f9": "#ff8c00",
+          "0": "#98ff00",
+          "p": "#00ff41",
+          ";": "#00e3ff",
+          "/": "#0019ff",
+          "right_ctrl": "#6400ff",
+          "f10": "#ff9b00",
+          "-": "#89ff00",
+          "[": "#00ff51",
+          "'": "#00d3ff",
+          "f11": "#ffab00",
+          "=": "#79ff00",
+          "]": "#00ff60",
+          "f12": "#ffbb00",
+          "backspace": "#6aff00",
+          "\\": "#00ff70",
+          "enter": "#00c4ff",
+          "right_shift": "#0009ff",
+          "left": "#d000ff",
+          "print_screen": "#7300ff",
+          "up": "#c100ff",
+          "down": "#e000ff",
+          "delete": "#8300ff",
+          "page_up": "#9200ff",
+          "page_down": "#a200ff",
+          "end": "#b100ff",
+          "right": "#ef00ff"
+        }
+      },
+      "keymap": {
+        "assignments": {
+          "esc": {
+            "base_raw_value": 41,
+            "fn_raw_value": 41
+          },
+          "f1": {
+            "base_raw_value": 58,
+            "fn_raw_value": 58
+          },
+          "f2": {
+            "base_raw_value": 59,
+            "fn_raw_value": 59
+          },
+          "f3": {
+            "base_raw_value": 60,
+            "fn_raw_value": 60
+          },
+          "f4": {
+            "base_raw_value": 61,
+            "fn_raw_value": 61
+          },
+          "f5": {
+            "base_raw_value": 62,
+            "fn_raw_value": 62
+          },
+          "f6": {
+            "base_raw_value": 63,
+            "fn_raw_value": 63
+          },
+          "f7": {
+            "base_raw_value": 64,
+            "fn_raw_value": 64
+          },
+          "f8": {
+            "base_raw_value": 65,
+            "fn_raw_value": 65
+          },
+          "f9": {
+            "base_raw_value": 66,
+            "fn_raw_value": 66
+          },
+          "f10": {
+            "base_raw_value": 67,
+            "fn_raw_value": 67
+          },
+          "f11": {
+            "base_raw_value": 68,
+            "fn_raw_value": 68
+          },
+          "f12": {
+            "base_raw_value": 69,
+            "fn_raw_value": 69
+          },
+          "print_screen": {
+            "base_raw_value": 70,
+            "fn_raw_value": 70
+          },
+          "`": {
+            "base_raw_value": 53,
+            "fn_raw_value": 53
+          },
+          "1": {
+            "base_raw_value": 30,
+            "fn_raw_value": 30
+          },
+          "2": {
+            "base_raw_value": 31,
+            "fn_raw_value": 31
+          },
+          "3": {
+            "base_raw_value": 32,
+            "fn_raw_value": 32
+          },
+          "4": {
+            "base_raw_value": 33,
+            "fn_raw_value": 33
+          },
+          "5": {
+            "base_raw_value": 34,
+            "fn_raw_value": 34
+          },
+          "6": {
+            "base_raw_value": 35,
+            "fn_raw_value": 35
+          },
+          "7": {
+            "base_raw_value": 36,
+            "fn_raw_value": 36
+          },
+          "8": {
+            "base_raw_value": 37,
+            "fn_raw_value": 37
+          },
+          "9": {
+            "base_raw_value": 38,
+            "fn_raw_value": 38
+          },
+          "0": {
+            "base_raw_value": 39,
+            "fn_raw_value": 39
+          },
+          "-": {
+            "base_raw_value": 45,
+            "fn_raw_value": 45
+          },
+          "=": {
+            "base_raw_value": 46,
+            "fn_raw_value": 46
+          },
+          "backspace": {
+            "base_raw_value": 42,
+            "fn_raw_value": 42
+          },
+          "tab": {
+            "base_raw_value": 43,
+            "fn_raw_value": 43
+          },
+          "q": {
+            "base_raw_value": 20,
+            "fn_raw_value": 20
+          },
+          "w": {
+            "base_raw_value": 26,
+            "fn_raw_value": 26
+          },
+          "e": {
+            "base_raw_value": 8,
+            "fn_raw_value": 8
+          },
+          "r": {
+            "base_raw_value": 21,
+            "fn_raw_value": 21
+          },
+          "t": {
+            "base_raw_value": 23,
+            "fn_raw_value": 23
+          },
+          "y": {
+            "base_raw_value": 28,
+            "fn_raw_value": 28
+          },
+          "u": {
+            "base_raw_value": 24,
+            "fn_raw_value": 24
+          },
+          "i": {
+            "base_raw_value": 12,
+            "fn_raw_value": 12
+          },
+          "o": {
+            "base_raw_value": 18,
+            "fn_raw_value": 18
+          },
+          "p": {
+            "base_raw_value": 19,
+            "fn_raw_value": 19
+          },
+          "[": {
+            "base_raw_value": 47,
+            "fn_raw_value": 47
+          },
+          "]": {
+            "base_raw_value": 48,
+            "fn_raw_value": 48
+          },
+          "\\": {
+            "base_raw_value": 49,
+            "fn_raw_value": 49
+          },
+          "caps": {
+            "base_raw_value": 57,
+            "fn_raw_value": 57
+          },
+          "a": {
+            "base_raw_value": 4,
+            "fn_raw_value": 4
+          },
+          "s": {
+            "base_raw_value": 22,
+            "fn_raw_value": 22
+          },
+          "d": {
+            "base_raw_value": 7,
+            "fn_raw_value": 7
+          },
+          "f": {
+            "base_raw_value": 9,
+            "fn_raw_value": 9
+          },
+          "g": {
+            "base_raw_value": 10,
+            "fn_raw_value": 10
+          },
+          "h": {
+            "base_raw_value": 11,
+            "fn_raw_value": 11
+          },
+          "j": {
+            "base_raw_value": 13,
+            "fn_raw_value": 13
+          },
+          "k": {
+            "base_raw_value": 14,
+            "fn_raw_value": 14
+          },
+          "l": {
+            "base_raw_value": 15,
+            "fn_raw_value": 15
+          },
+          ";": {
+            "base_raw_value": 51,
+            "fn_raw_value": 51
+          },
+          "'": {
+            "base_raw_value": 52,
+            "fn_raw_value": 52
+          },
+          "enter": {
+            "base_raw_value": 40,
+            "fn_raw_value": 40
+          },
+          "left_shift": {
+            "base_raw_value": 131072,
+            "fn_raw_value": 131072
+          },
+          "z": {
+            "base_raw_value": 29,
+            "fn_raw_value": 29
+          },
+          "x": {
+            "base_raw_value": 27,
+            "fn_raw_value": 27
+          },
+          "c": {
+            "base_raw_value": 6,
+            "fn_raw_value": 6
+          },
+          "v": {
+            "base_raw_value": 25,
+            "fn_raw_value": 25
+          },
+          "b": {
+            "base_raw_value": 5,
+            "fn_raw_value": 5
+          },
+          "n": {
+            "base_raw_value": 17,
+            "fn_raw_value": 17
+          },
+          "m": {
+            "base_raw_value": 16,
+            "fn_raw_value": 16
+          },
+          ",": {
+            "base_raw_value": 54,
+            "fn_raw_value": 54
+          },
+          ".": {
+            "base_raw_value": 55,
+            "fn_raw_value": 55
+          },
+          "/": {
+            "base_raw_value": 56,
+            "fn_raw_value": 56
+          },
+          "right_shift": {
+            "base_raw_value": 2097152,
+            "fn_raw_value": 2097152
+          },
+          "left_ctrl": {
+            "base_raw_value": 65536,
+            "fn_raw_value": 65536
+          },
+          "left_cmd": {
+            "base_raw_value": 524288,
+            "fn_raw_value": 524288
+          },
+          "left_opt": {
+            "base_raw_value": 262144,
+            "fn_raw_value": 262144
+          },
+          "space": {
+            "base_raw_value": 44,
+            "fn_raw_value": 44
+          },
+          "right_opt": {
+            "base_raw_value": 4194304,
+            "fn_raw_value": 4194304
+          },
+          "fn": {
+            "base_raw_value": 218103808,
+            "fn_raw_value": 218103808
+          },
+          "right_ctrl": {
+            "base_raw_value": 1048576,
+            "fn_raw_value": 1048576
+          },
+          "up": {
+            "base_raw_value": 82,
+            "fn_raw_value": 82
+          },
+          "left": {
+            "base_raw_value": 80,
+            "fn_raw_value": 80
+          },
+          "down": {
+            "base_raw_value": 81,
+            "fn_raw_value": 81
+          },
+          "right": {
+            "base_raw_value": 79,
+            "fn_raw_value": 79
+          },
+          "delete": {
+            "base_raw_value": 76,
+            "fn_raw_value": 76
+          },
+          "page_up": {
+            "base_raw_value": 75,
+            "fn_raw_value": 75
+          },
+          "page_down": {
+            "base_raw_value": 78,
+            "fn_raw_value": 78
+          },
+          "end": {
+            "base_raw_value": 77,
+            "fn_raw_value": 77
+          }
+        }
+      }
+    },
+    {
+      "snapshot_id": "ba002769-bdda-48d8-bb1c-00f6cf812dce",
+      "name": "Desk Setup",
+      "updated_at": "2026-04-03T15:55:20.538100+00:00",
+      "lighting": {
+        "mode": "custom",
+        "brightness": 100,
+        "color": null,
+        "keys": {
+          "esc": "#ff4d4d",
+          "`": "#356dff",
+          "tab": "#356dff",
+          "caps": "#356dff",
+          "left_shift": "#ff4d4d",
+          "left_ctrl": "#ff4d4d",
+          "1": "#ff4d4d",
+          "q": "#ff4d4d",
+          "a": "#ff4d4d",
+          "z": "#356dff",
+          "left_cmd": "#356dff",
+          "f1": "#356dff",
+          "2": "#356dff",
+          "w": "#356dff",
+          "s": "#356dff",
+          "x": "#ff4d4d",
+          "left_opt": "#ff4d4d",
+          "f2": "#ff4d4d",
+          "3": "#ff4d4d",
+          "e": "#ff4d4d",
+          "d": "#ff4d4d",
+          "c": "#356dff",
+          "f3": "#356dff",
+          "4": "#356dff",
+          "r": "#356dff",
+          "f": "#356dff",
+          "v": "#ff4d4d",
+          "f4": "#ff4d4d",
+          "5": "#ff4d4d",
+          "t": "#ff4d4d",
+          "g": "#ff4d4d",
+          "b": "#356dff",
+          "space": "#356dff",
+          "f5": "#356dff",
+          "6": "#356dff",
+          "y": "#356dff",
+          "h": "#356dff",
+          "n": "#ff4d4d",
+          "f6": "#ff4d4d",
+          "7": "#ff4d4d",
+          "u": "#ff4d4d",
+          "j": "#ff4d4d",
+          "m": "#356dff",
+          "f7": "#356dff",
+          "8": "#356dff",
+          "i": "#356dff",
+          "k": "#356dff",
+          ",": "#ff4d4d",
+          "right_opt": "#ff4d4d",
+          "f8": "#ff4d4d",
+          "9": "#ff4d4d",
+          "o": "#ff4d4d",
+          "l": "#ff4d4d",
+          ".": "#356dff",
+          "fn": "#356dff",
+          "f9": "#356dff",
+          "0": "#356dff",
+          "p": "#356dff",
+          ";": "#356dff",
+          "/": "#ff4d4d",
+          "right_ctrl": "#ff4d4d",
+          "f10": "#ff4d4d",
+          "-": "#ff4d4d",
+          "[": "#ff4d4d",
+          "'": "#ff4d4d",
+          "f11": "#356dff",
+          "=": "#356dff",
+          "]": "#356dff",
+          "f12": "#ff4d4d",
+          "backspace": "#ff4d4d",
+          "\\": "#ff4d4d",
+          "enter": "#356dff",
+          "right_shift": "#356dff",
+          "left": "#356dff",
+          "print_screen": "#356dff",
+          "up": "#ff4d4d",
+          "down": "#ff4d4d",
+          "delete": "#ff4d4d",
+          "page_up": "#356dff",
+          "page_down": "#ff4d4d",
+          "end": "#356dff",
+          "right": "#356dff"
+        }
+      },
+      "keymap": {
+        "assignments": {
+          "esc": {
+            "base_raw_value": 41,
+            "fn_raw_value": 41
+          },
+          "f1": {
+            "base_raw_value": 58,
+            "fn_raw_value": 58
+          },
+          "f2": {
+            "base_raw_value": 59,
+            "fn_raw_value": 59
+          },
+          "f3": {
+            "base_raw_value": 60,
+            "fn_raw_value": 60
+          },
+          "f4": {
+            "base_raw_value": 61,
+            "fn_raw_value": 61
+          },
+          "f5": {
+            "base_raw_value": 62,
+            "fn_raw_value": 62
+          },
+          "f6": {
+            "base_raw_value": 63,
+            "fn_raw_value": 63
+          },
+          "f7": {
+            "base_raw_value": 64,
+            "fn_raw_value": 64
+          },
+          "f8": {
+            "base_raw_value": 65,
+            "fn_raw_value": 65
+          },
+          "f9": {
+            "base_raw_value": 66,
+            "fn_raw_value": 66
+          },
+          "f10": {
+            "base_raw_value": 67,
+            "fn_raw_value": 67
+          },
+          "f11": {
+            "base_raw_value": 68,
+            "fn_raw_value": 68
+          },
+          "f12": {
+            "base_raw_value": 69,
+            "fn_raw_value": 69
+          },
+          "print_screen": {
+            "base_raw_value": 70,
+            "fn_raw_value": 70
+          },
+          "`": {
+            "base_raw_value": 53,
+            "fn_raw_value": 53
+          },
+          "1": {
+            "base_raw_value": 30,
+            "fn_raw_value": 30
+          },
+          "2": {
+            "base_raw_value": 31,
+            "fn_raw_value": 31
+          },
+          "3": {
+            "base_raw_value": 32,
+            "fn_raw_value": 32
+          },
+          "4": {
+            "base_raw_value": 33,
+            "fn_raw_value": 33
+          },
+          "5": {
+            "base_raw_value": 34,
+            "fn_raw_value": 34
+          },
+          "6": {
+            "base_raw_value": 35,
+            "fn_raw_value": 35
+          },
+          "7": {
+            "base_raw_value": 36,
+            "fn_raw_value": 36
+          },
+          "8": {
+            "base_raw_value": 37,
+            "fn_raw_value": 37
+          },
+          "9": {
+            "base_raw_value": 38,
+            "fn_raw_value": 38
+          },
+          "0": {
+            "base_raw_value": 39,
+            "fn_raw_value": 39
+          },
+          "-": {
+            "base_raw_value": 45,
+            "fn_raw_value": 45
+          },
+          "=": {
+            "base_raw_value": 46,
+            "fn_raw_value": 46
+          },
+          "backspace": {
+            "base_raw_value": 42,
+            "fn_raw_value": 42
+          },
+          "tab": {
+            "base_raw_value": 43,
+            "fn_raw_value": 43
+          },
+          "q": {
+            "base_raw_value": 20,
+            "fn_raw_value": 20
+          },
+          "w": {
+            "base_raw_value": 26,
+            "fn_raw_value": 26
+          },
+          "e": {
+            "base_raw_value": 8,
+            "fn_raw_value": 8
+          },
+          "r": {
+            "base_raw_value": 21,
+            "fn_raw_value": 21
+          },
+          "t": {
+            "base_raw_value": 23,
+            "fn_raw_value": 23
+          },
+          "y": {
+            "base_raw_value": 28,
+            "fn_raw_value": 28
+          },
+          "u": {
+            "base_raw_value": 24,
+            "fn_raw_value": 24
+          },
+          "i": {
+            "base_raw_value": 12,
+            "fn_raw_value": 12
+          },
+          "o": {
+            "base_raw_value": 18,
+            "fn_raw_value": 18
+          },
+          "p": {
+            "base_raw_value": 19,
+            "fn_raw_value": 19
+          },
+          "[": {
+            "base_raw_value": 47,
+            "fn_raw_value": 47
+          },
+          "]": {
+            "base_raw_value": 48,
+            "fn_raw_value": 48
+          },
+          "\\": {
+            "base_raw_value": 49,
+            "fn_raw_value": 49
+          },
+          "caps": {
+            "base_raw_value": 57,
+            "fn_raw_value": 57
+          },
+          "a": {
+            "base_raw_value": 4,
+            "fn_raw_value": 4
+          },
+          "s": {
+            "base_raw_value": 22,
+            "fn_raw_value": 22
+          },
+          "d": {
+            "base_raw_value": 7,
+            "fn_raw_value": 7
+          },
+          "f": {
+            "base_raw_value": 9,
+            "fn_raw_value": 9
+          },
+          "g": {
+            "base_raw_value": 10,
+            "fn_raw_value": 10
+          },
+          "h": {
+            "base_raw_value": 11,
+            "fn_raw_value": 11
+          },
+          "j": {
+            "base_raw_value": 13,
+            "fn_raw_value": 13
+          },
+          "k": {
+            "base_raw_value": 14,
+            "fn_raw_value": 14
+          },
+          "l": {
+            "base_raw_value": 15,
+            "fn_raw_value": 15
+          },
+          ";": {
+            "base_raw_value": 51,
+            "fn_raw_value": 51
+          },
+          "'": {
+            "base_raw_value": 52,
+            "fn_raw_value": 52
+          },
+          "enter": {
+            "base_raw_value": 40,
+            "fn_raw_value": 40
+          },
+          "left_shift": {
+            "base_raw_value": 131072,
+            "fn_raw_value": 131072
+          },
+          "z": {
+            "base_raw_value": 29,
+            "fn_raw_value": 29
+          },
+          "x": {
+            "base_raw_value": 27,
+            "fn_raw_value": 27
+          },
+          "c": {
+            "base_raw_value": 6,
+            "fn_raw_value": 6
+          },
+          "v": {
+            "base_raw_value": 25,
+            "fn_raw_value": 25
+          },
+          "b": {
+            "base_raw_value": 5,
+            "fn_raw_value": 5
+          },
+          "n": {
+            "base_raw_value": 17,
+            "fn_raw_value": 17
+          },
+          "m": {
+            "base_raw_value": 16,
+            "fn_raw_value": 16
+          },
+          ",": {
+            "base_raw_value": 54,
+            "fn_raw_value": 54
+          },
+          ".": {
+            "base_raw_value": 55,
+            "fn_raw_value": 55
+          },
+          "/": {
+            "base_raw_value": 56,
+            "fn_raw_value": 56
+          },
+          "right_shift": {
+            "base_raw_value": 2097152,
+            "fn_raw_value": 2097152
+          },
+          "left_ctrl": {
+            "base_raw_value": 65536,
+            "fn_raw_value": 65536
+          },
+          "left_cmd": {
+            "base_raw_value": 524288,
+            "fn_raw_value": 524288
+          },
+          "left_opt": {
+            "base_raw_value": 262144,
+            "fn_raw_value": 262144
+          },
+          "space": {
+            "base_raw_value": 44,
+            "fn_raw_value": 44
+          },
+          "right_opt": {
+            "base_raw_value": 4194304,
+            "fn_raw_value": 4194304
+          },
+          "fn": {
+            "base_raw_value": 218103808,
+            "fn_raw_value": 218103808
+          },
+          "right_ctrl": {
+            "base_raw_value": 1048576,
+            "fn_raw_value": 1048576
+          },
+          "up": {
+            "base_raw_value": 82,
+            "fn_raw_value": 82
+          },
+          "left": {
+            "base_raw_value": 80,
+            "fn_raw_value": 80
+          },
+          "down": {
+            "base_raw_value": 81,
+            "fn_raw_value": 81
+          },
+          "right": {
+            "base_raw_value": 79,
+            "fn_raw_value": 79
+          },
+          "delete": {
+            "base_raw_value": 76,
+            "fn_raw_value": 76
+          },
+          "page_up": {
+            "base_raw_value": 75,
+            "fn_raw_value": 75
+          },
+          "page_down": {
+            "base_raw_value": 78,
+            "fn_raw_value": 78
+          },
+          "end": {
+            "base_raw_value": 77,
+            "fn_raw_value": 77
+          }
+        }
+      }
+    }
+  ]
+}

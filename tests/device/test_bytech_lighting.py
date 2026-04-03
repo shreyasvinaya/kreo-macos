@@ -1,13 +1,17 @@
 from __future__ import annotations
 
+import json
 from collections import deque
+from pathlib import Path
 from typing import cast
 
 from kreo_kontrol.api.app import create_app
 from kreo_kontrol.device.bytech_lighting import (
     BytechLightingController,
     LightingController,
+    LightingHardwareUnavailableError,
     build_demo_per_key_frame,
+    build_keymap_action_catalog,
     build_per_key_frame,
     parse_key_records,
 )
@@ -43,6 +47,86 @@ def wrap_keys_response(command: bytes, payload: bytes) -> bytes:
     return bytes([5, *command, *payload])
 
 
+def build_keymap_payload(values_by_pos: dict[int, int]) -> bytes:
+    payload = bytearray(126 * 4)
+    for pos, value in values_by_pos.items():
+        slot = (pos - 8) // 4
+        offset = slot * 4
+        payload[offset] = (value >> 24) & 0xFF
+        payload[offset + 1] = (value >> 16) & 0xFF
+        payload[offset + 2] = (value >> 8) & 0xFF
+        payload[offset + 3] = value & 0xFF
+    return bytes(payload)
+
+
+def build_macro_blob(groups: list[bytes]) -> bytes:
+    headers = bytearray()
+    payload = bytearray()
+    offset = len(groups) * 4
+    for group in groups:
+        headers.extend([offset, 0, len(group), 0])
+        payload.extend(group)
+        offset += len(group)
+    blob = bytes([*headers, *payload])
+    return bytes([*blob, *([0] * (512 - len(blob)))])
+
+
+def build_macro_group(
+    name: str,
+    actions: list[tuple[int, int, int]],
+) -> bytes:
+    encoded_name = name.encode("utf-8")
+    payload = bytearray([len(encoded_name), *encoded_name])
+    for event_type, delay_ms, keycode in actions:
+        payload.extend(
+            [
+                ((event_type & 0x0F) << 4) | ((delay_ms >> 16) & 0x0F),
+                (delay_ms >> 8) & 0xFF,
+                delay_ms & 0xFF,
+                keycode & 0xFF,
+            ]
+        )
+    return bytes(payload)
+
+
+def build_receiver_packets(command: int, payload: bytes) -> list[bytes]:
+    packets: list[bytes] = []
+    chunk_size = 14
+    total_packets = max(1, (len(payload) + chunk_size - 1) // chunk_size)
+    for index in range(total_packets):
+        start = index * chunk_size
+        chunk = payload[start : start + chunk_size]
+        padded_chunk = bytes([*chunk, *([0] * (chunk_size - len(chunk)))])
+        packets.append(
+            bytes(
+                [
+                    0x13,
+                    command,
+                    total_packets,
+                    index,
+                    len(chunk) if len(chunk) > 0 else 2,
+                    *padded_chunk,
+                    0,
+                ]
+            )
+        )
+    return packets
+
+
+def load_swarm75_led_map() -> list[dict[str, object]]:
+    led_map_path = (
+        Path(__file__).resolve().parents[2]
+        / "kreo_website_dump"
+        / "kontrol.kreo-tech.com"
+        / "assets"
+        / "keyboard"
+        / "swarm75"
+        / "meta"
+        / "led-map.json"
+    )
+    return json.loads(led_map_path.read_text())["keys"]
+
+
 class FakeHidDevice:
     def __init__(self, responses: list[bytes]) -> None:
         self.feature_reads: deque[bytes] = deque(responses)
@@ -59,6 +143,42 @@ class FakeHidDevice:
     def get_feature_report(self, report_id: int, max_length: int) -> bytes:
         assert report_id == 6
         response = self.feature_reads.popleft()
+        assert len(response) <= max_length
+        return response
+
+    def write(self, data: bytes) -> int:
+        raise AssertionError("wired path should not use standard HID writes")
+
+    def read(self, max_length: int, timeout_ms: int = 0) -> bytes:
+        raise AssertionError("wired path should not use standard HID reads")
+
+    def close(self) -> None:
+        return None
+
+
+class FakeWirelessHidDevice:
+    def __init__(self, responses: list[bytes]) -> None:
+        self.reads: deque[bytes] = deque(responses)
+        self.writes: list[bytes] = []
+        self.opened_paths: list[bytes] = []
+
+    def open_path(self, path: bytes) -> None:
+        self.opened_paths.append(path)
+
+    def send_feature_report(self, data: bytes) -> int:
+        raise AssertionError("wireless path should not use feature reports")
+
+    def get_feature_report(self, report_id: int, max_length: int) -> bytes:
+        raise AssertionError("wireless path should not use feature reports")
+
+    def write(self, data: bytes) -> int:
+        self.writes.append(data)
+        return len(data)
+
+    def read(self, max_length: int, timeout_ms: int = 0) -> bytes:
+        if not self.reads:
+            return b""
+        response = self.reads.popleft()
         assert len(response) <= max_length
         return response
 
@@ -191,6 +311,50 @@ def test_apply_global_lighting_updates_static_color_group() -> None:
     assert device.sent_reports[3][:8] == b"\x05\x0a\x00\x00\x00\x00\x00\x02"
     written_table = device.sent_reports[3][8 : 8 + 480]
     assert written_table[21:24] == b"\x12\x34\x56"
+
+
+def test_apply_global_lighting_supports_effect_presets_without_color() -> None:
+    initial_profile = build_profile(mode=1, brightness_level=3)
+    verified_profile = build_profile(mode=4, brightness_level=2)
+    device = FakeHidDevice(
+        responses=[
+            wrap_response(b"\x84\x00\x00\x01\x00\x80", initial_profile),
+            wrap_response(b"\x84\x00\x00\x01\x00\x80", verified_profile),
+        ]
+    )
+    controller = BytechLightingController(
+        device_path=b"test-device",
+        device_factory=lambda: device,
+    )
+
+    state = controller.apply_global_lighting(
+        LightingApplyRequest(mode="wave", brightness=50)
+    )
+
+    assert state.mode == "wave"
+    assert state.brightness == 50
+    assert state.verification_status == LightingVerificationStatus.VERIFIED
+    written_profile = device.sent_reports[1][8 : 8 + 128]
+    assert written_profile[9:11] == b"\x00\x04"
+
+
+def test_receiver_session_reports_wireless_transport_when_vendor_hid_is_missing(
+) -> None:
+    controller = BytechLightingController(
+        path_provider=lambda: (_ for _ in ()).throw(LightingHardwareUnavailableError()),
+        receiver_path_provider=lambda: b"wireless-device",
+    )
+
+    assert controller.transport_kind() == "wireless_receiver"
+
+
+def test_receiver_session_is_marked_configurable() -> None:
+    controller = BytechLightingController(
+        path_provider=lambda: (_ for _ in ()).throw(LightingHardwareUnavailableError()),
+        receiver_path_provider=lambda: b"wireless-device",
+    )
+
+    assert controller.configurable() is True
 
 
 def test_lighting_apply_endpoint_uses_injected_controller() -> None:
@@ -419,6 +583,102 @@ def test_read_key_records_decodes_keyboard_light_positions() -> None:
     assert [record.light_pos for record in records] == [8, 9, 10]
 
 
+def test_read_keymap_decodes_base_and_fn_assignments() -> None:
+    base_payload = build_keymap_payload(
+        {
+            8: 41,
+            220: 0x00400000,
+        }
+    )
+    fn_payload = build_keymap_payload(
+        {
+            8: 58,
+            220: 0,
+        }
+    )
+    device = FakeHidDevice(
+        responses=[
+            wrap_keys_response(b"\x83\x00\x00\x01\x00\xf8\x01", base_payload),
+            wrap_keys_response(b"\x83\x00\x01\x01\x00\xf8\x01", fn_payload),
+        ]
+    )
+    controller = BytechLightingController(
+        device_path=b"test-device",
+        device_factory=lambda: device,
+    )
+
+    payload = controller.read_keymap()
+
+    esc = next(
+        assignment
+        for assignment in payload["assignments"]
+        if assignment["ui_key"] == "esc"
+    )
+    right_opt = next(
+        assignment
+        for assignment in payload["assignments"]
+        if assignment["ui_key"] == "right_opt"
+    )
+    esc_base_action = cast(dict[str, object], esc["base_action"])
+    esc_fn_action = cast(dict[str, object], esc["fn_action"])
+    right_opt_base_action = cast(dict[str, object], right_opt["base_action"])
+    assert esc_base_action["label"] == "Esc"
+    assert esc_fn_action["label"] == "F1"
+    assert right_opt_base_action["raw_value"] == 0x00400000
+
+
+def test_apply_keymap_writes_updated_base_and_fn_layers() -> None:
+    base_before = build_keymap_payload({220: 0x00400000})
+    fn_before = build_keymap_payload({220: 0})
+    base_after = build_keymap_payload({220: 0x00040000})
+    fn_after = build_keymap_payload({220: 0x020000CD})
+    device = FakeHidDevice(
+        responses=[
+            wrap_keys_response(b"\x83\x00\x00\x01\x00\xf8\x01", base_before),
+            wrap_keys_response(b"\x83\x00\x01\x01\x00\xf8\x01", fn_before),
+            wrap_keys_response(b"\x83\x00\x00\x01\x00\xf8\x01", base_after),
+            wrap_keys_response(b"\x83\x00\x01\x01\x00\xf8\x01", fn_after),
+        ]
+    )
+    controller = BytechLightingController(
+        device_path=b"test-device",
+        device_factory=lambda: device,
+    )
+
+    payload = controller.apply_keymap(
+        {
+            "right_opt": {
+                "base_raw_value": 0x00040000,
+                "fn_raw_value": 0x020000CD,
+            }
+        }
+    )
+
+    right_opt = next(
+        assignment
+        for assignment in payload["assignments"]
+        if assignment["ui_key"] == "right_opt"
+    )
+    right_opt_base_action = cast(dict[str, object], right_opt["base_action"])
+    right_opt_fn_action = cast(dict[str, object], right_opt["fn_action"])
+    assert right_opt_base_action["raw_value"] == 0x00040000
+    assert right_opt_fn_action["raw_value"] == 0x020000CD
+    assert device.sent_reports[2][:8] == b"\x05\x03\x00\x00\x01\x00\xf8\x01"
+    assert device.sent_reports[3][:8] == b"\x05\x03\x00\x01\x01\x00\xf8\x01"
+
+
+def test_keymap_action_catalog_distinguishes_left_and_right_modifiers() -> None:
+    catalog = build_keymap_action_catalog()
+    labels_by_action_id = {entry.action_id: entry.label for entry in catalog}
+
+    assert labels_by_action_id["basic:left_ctrl"] == "Control Left"
+    assert labels_by_action_id["basic:right_ctrl"] == "Control Right"
+    assert labels_by_action_id["basic:left_opt"] == "Command Left"
+    assert labels_by_action_id["basic:right_opt"] == "Command Right"
+    assert labels_by_action_id["basic:left_cmd"] == "Option Left"
+    assert labels_by_action_id["basic:right_cmd"] == "Option Right"
+
+
 def test_apply_per_key_colors_writes_targeted_custom_frame() -> None:
     profile = build_profile(mode=1, brightness_level=2)
     device = FakeHidDevice(
@@ -542,3 +802,203 @@ def test_apply_per_key_colors_by_ui_key_maps_keys_and_updates_frame() -> None:
     assert state["keys"][0]["color"] == "#00ff00"
     assert device.sent_reports[4][:8] == b"\x05\x86\x00\x00\x01\x00\x7a\x01"
     assert device.sent_reports[5][:8] == b"\x05\x06\x00\x00\x01\x00\x7a\x01"
+
+
+def test_read_per_key_state_reads_wireless_custom_frame_colors() -> None:
+    custom_profile = bytearray(build_profile(mode=1, brightness_level=2))
+    custom_profile[9] = 0x01
+    custom_profile[10] = 0x15
+    receiver_frame = bytearray([0] * 378)
+    receiver_frame[0:3] = bytes([0x12, 0x34, 0x56])
+    receiver_frame[12 * 3 : (12 * 3) + 3] = bytes([0xAB, 0xCD, 0xEF])
+    device = FakeWirelessHidDevice(
+        responses=[
+            *build_receiver_packets(68, bytes(custom_profile)),
+            *build_receiver_packets(2, bytes(receiver_frame)),
+        ]
+    )
+    controller = BytechLightingController(
+        path_provider=lambda: (_ for _ in ()).throw(LightingHardwareUnavailableError()),
+        receiver_path_provider=lambda: b"wireless-device",
+        device_factory=lambda: device,
+    )
+
+    state = controller.read_per_key_state()
+
+    colors_by_key = {entry["ui_key"]: entry["color"] for entry in state["keys"]}
+    assert state["mode"] == "custom"
+    assert state["per_key_rgb_supported"] is True
+    assert colors_by_key["esc"] == "#123456"
+    assert colors_by_key["f1"] == "#abcdef"
+
+
+def test_apply_per_key_colors_by_ui_key_writes_wireless_custom_frame() -> None:
+    custom_profile = bytearray(build_profile(mode=1, brightness_level=2))
+    custom_profile[9] = 0x01
+    custom_profile[10] = 0x15
+    receiver_frame = bytearray([0] * 378)
+    device = FakeWirelessHidDevice(
+        responses=[
+            *build_receiver_packets(68, bytes(custom_profile)),
+            *build_receiver_packets(2, bytes(receiver_frame)),
+        ]
+    )
+    controller = BytechLightingController(
+        path_provider=lambda: (_ for _ in ()).throw(LightingHardwareUnavailableError()),
+        receiver_path_provider=lambda: b"wireless-device",
+        device_factory=lambda: device,
+    )
+
+    state = controller.apply_per_key_colors_by_ui_key({"esc": "#00ff00"})
+
+    assert any(write[1] == 66 for write in device.writes)
+    assert any(write[1] == 2 for write in device.writes)
+    colors_by_key = {entry["ui_key"]: entry["color"] for entry in state["keys"]}
+    assert colors_by_key["esc"] == "#00ff00"
+
+
+def test_apply_global_lighting_writes_wireless_profile_and_light_table() -> None:
+    profile = build_profile(mode=1, brightness_level=3)
+    light_table = bytearray([0] * 480)
+    verified_profile = build_profile(mode=1, brightness_level=1)
+    verified_light_table = bytearray(light_table)
+    verified_light_table[21:24] = bytes([0x12, 0x34, 0x56])
+    device = FakeWirelessHidDevice(
+        responses=[
+            *build_receiver_packets(68, bytes(profile)),
+            *build_receiver_packets(73, bytes(light_table)),
+            *build_receiver_packets(68, bytes(verified_profile)),
+            *build_receiver_packets(73, bytes(verified_light_table)),
+        ]
+    )
+    controller = BytechLightingController(
+        path_provider=lambda: (_ for _ in ()).throw(LightingHardwareUnavailableError()),
+        receiver_path_provider=lambda: b"wireless-device",
+        device_factory=lambda: device,
+    )
+
+    state = controller.apply_global_lighting(
+        LightingApplyRequest(mode="static", brightness=25, color="#123456")
+    )
+
+    assert state.verification_status == LightingVerificationStatus.VERIFIED
+    assert any(write[1] == 4 for write in device.writes)
+    assert any(write[1] == 9 for write in device.writes)
+
+
+def test_apply_global_lighting_supports_wireless_effect_presets_without_color() -> None:
+    initial_profile = build_profile(mode=1, brightness_level=3)
+    verified_profile = build_profile(mode=7, brightness_level=2)
+    device = FakeWirelessHidDevice(
+        responses=[
+            *build_receiver_packets(68, bytes(initial_profile)),
+            *build_receiver_packets(68, bytes(verified_profile)),
+        ]
+    )
+    controller = BytechLightingController(
+        path_provider=lambda: (_ for _ in ()).throw(LightingHardwareUnavailableError()),
+        receiver_path_provider=lambda: b"wireless-device",
+        device_factory=lambda: device,
+    )
+
+    state = controller.apply_global_lighting(
+        LightingApplyRequest(mode="snake", brightness=50)
+    )
+
+    assert state.mode == "snake"
+    assert state.verification_status == LightingVerificationStatus.VERIFIED
+    assert any(write[1] == 4 for write in device.writes)
+
+
+def test_read_macros_decodes_named_slot_and_bound_key() -> None:
+    macro_blob = build_macro_blob(
+        [
+            build_macro_group(
+                "Copy Burst",
+                [
+                    (0, 12, 6),
+                    (8, 24, 6),
+                ],
+            )
+        ]
+    )
+    base_keymap = build_keymap_payload(
+        {
+            220: 0x03010300,
+        }
+    )
+    device = FakeHidDevice(
+        responses=[
+            wrap_keys_response(b"\x83\x00\x00\x01\x00\xf8\x01", base_keymap),
+            wrap_keys_response(b"\x85\x00\x00\x01\x00\x00\x02", macro_blob),
+        ]
+    )
+    controller = BytechLightingController(
+        device_path=b"wired-macro-device",
+        device_factory=lambda: device,
+    )
+
+    payload = controller.read_macros()
+
+    assert payload["supported"] is True
+    assert payload["next_slot_id"] == 1
+    assert payload["slots"][0]["slot_id"] == 0
+    assert payload["slots"][0]["name"] == "Copy Burst"
+    assert payload["slots"][0]["execution_type"] == "FIXED_COUNT"
+    assert payload["slots"][0]["cycle_times"] == 3
+    assert payload["slots"][0]["bound_ui_keys"] == ["right_opt"]
+    assert payload["slots"][0]["actions"] == [
+        {"key": "c", "event_type": "press", "delay_ms": 12},
+        {"key": "c", "event_type": "release", "delay_ms": 24},
+    ]
+
+
+def test_apply_macro_appends_slot_and_updates_bound_key() -> None:
+    initial_blob = build_macro_blob([])
+    initial_keymap = build_keymap_payload({})
+    updated_blob = build_macro_blob(
+        [
+            build_macro_group(
+                "Launch Focus",
+                [
+                    (0, 10, 20),
+                    (8, 20, 20),
+                ],
+            )
+        ]
+    )
+    updated_keymap = build_keymap_payload({220: 0x03010200})
+    device = FakeHidDevice(
+        responses=[
+            wrap_keys_response(b"\x85\x00\x00\x01\x00\x00\x02", initial_blob),
+            wrap_keys_response(b"\x83\x00\x00\x01\x00\xf8\x01", initial_keymap),
+            wrap_keys_response(b"\x83\x00\x00\x01\x00\xf8\x01", updated_keymap),
+            wrap_keys_response(b"\x85\x00\x00\x01\x00\x00\x02", updated_blob),
+        ]
+    )
+    controller = BytechLightingController(
+        device_path=b"wired-macro-device",
+        device_factory=lambda: device,
+    )
+
+    payload = controller.apply_macro(
+        slot_id=0,
+        request={
+            "name": "Launch Focus",
+            "bound_ui_key": "right_opt",
+            "execution_type": "UNTIL_ANY_PRESSED",
+            "cycle_times": 1,
+            "actions": [
+                {"key": "q", "event_type": "press", "delay_ms": 10},
+                {"key": "q", "event_type": "release", "delay_ms": 20},
+            ],
+        },
+    )
+
+    macro_write = device.sent_reports[1]
+    keymap_write = device.sent_reports[3]
+
+    assert macro_write[:8] == b"\x05\x05\x00\x00\x01\x00\x00\x02"
+    assert keymap_write[:8] == b"\x05\x03\x00\x00\x01\x00\xf8\x01"
+    assert payload["slots"][0]["name"] == "Launch Focus"
+    assert payload["slots"][0]["bound_ui_keys"] == ["right_opt"]

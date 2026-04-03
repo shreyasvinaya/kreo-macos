@@ -1,0 +1,21 @@
+{
+    "assetName": "swarm75",
+    "deviceType": "keyboard",
+    "defaultVariant": "black",
+    "variants": [
+        {
+            "id": "black",
+            "label": "Black",
+            "baseImage": "default.png"
+        }
+    ],
+    "baseImagePath": "base",
+    "letters": {
+        "default": "letters/default.png"
+    },
+    "overlay": {
+        "interactiveSvg": "overlay/interactive.svg",
+        "rgbMaskSvg": "overlay/rgb-mask.svg"
+    },
+    "keyMapping": {}
+}

@@ -1,0 +1,997 @@
+{
+  "version": 2,
+  "device": "swarm75",
+  "frame": {
+    "type": "per-key-rgb",
+    "keyCount": 82,
+    "channels": 3,
+    "planeSize": 126
+  },
+  "keys": [
+    {
+      "logicalId": "ESC",
+      "svgId": "key_ESC",
+      "pos": 0,
+      "protocolPos": 8,
+      "arrayIndex": 0,
+      "ledIndex": 0,
+      "grid": {
+        "row": 0,
+        "col": 0
+      }
+    },
+    {
+      "logicalId": "F1",
+      "svgId": "key_F1",
+      "pos": 1,
+      "protocolPos": 56,
+      "arrayIndex": 48,
+      "ledIndex": 12,
+      "grid": {
+        "row": 0,
+        "col": 2
+      }
+    },
+    {
+      "logicalId": "F2",
+      "svgId": "key_F2",
+      "pos": 2,
+      "protocolPos": 80,
+      "arrayIndex": 72,
+      "ledIndex": 18,
+      "grid": {
+        "row": 0,
+        "col": 3
+      }
+    },
+    {
+      "logicalId": "F3",
+      "svgId": "key_F3",
+      "pos": 3,
+      "protocolPos": 104,
+      "arrayIndex": 96,
+      "ledIndex": 24,
+      "grid": {
+        "row": 0,
+        "col": 4
+      }
+    },
+    {
+      "logicalId": "F4",
+      "svgId": "key_F4",
+      "pos": 4,
+      "protocolPos": 128,
+      "arrayIndex": 120,
+      "ledIndex": 30,
+      "grid": {
+        "row": 0,
+        "col": 5
+      }
+    },
+    {
+      "logicalId": "F5",
+      "svgId": "key_F5",
+      "pos": 5,
+      "protocolPos": 152,
+      "arrayIndex": 144,
+      "ledIndex": 36,
+      "grid": {
+        "row": 0,
+        "col": 6
+      }
+    },
+    {
+      "logicalId": "F6",
+      "svgId": "key_F6",
+      "pos": 6,
+      "protocolPos": 176,
+      "arrayIndex": 168,
+      "ledIndex": 42,
+      "grid": {
+        "row": 0,
+        "col": 7
+      }
+    },
+    {
+      "logicalId": "F7",
+      "svgId": "key_F7",
+      "pos": 7,
+      "protocolPos": 200,
+      "arrayIndex": 192,
+      "ledIndex": 48,
+      "grid": {
+        "row": 0,
+        "col": 8
+      }
+    },
+    {
+      "logicalId": "F8",
+      "svgId": "key_F8",
+      "pos": 8,
+      "protocolPos": 224,
+      "arrayIndex": 216,
+      "ledIndex": 54,
+      "grid": {
+        "row": 0,
+        "col": 9
+      }
+    },
+    {
+      "logicalId": "F9",
+      "svgId": "key_F9",
+      "pos": 9,
+      "protocolPos": 248,
+      "arrayIndex": 240,
+      "ledIndex": 60,
+      "grid": {
+        "row": 0,
+        "col": 10
+      }
+    },
+    {
+      "logicalId": "F10",
+      "svgId": "key_F10",
+      "pos": 10,
+      "protocolPos": 272,
+      "arrayIndex": 264,
+      "ledIndex": 66,
+      "grid": {
+        "row": 0,
+        "col": 11
+      }
+    },
+    {
+      "logicalId": "F11",
+      "svgId": "key_F11",
+      "pos": 11,
+      "protocolPos": 296,
+      "arrayIndex": 288,
+      "ledIndex": 72,
+      "grid": {
+        "row": 0,
+        "col": 12
+      }
+    },
+    {
+      "logicalId": "F12",
+      "svgId": "key_F12",
+      "pos": 12,
+      "protocolPos": 320,
+      "arrayIndex": 312,
+      "ledIndex": 78,
+      "grid": {
+        "row": 0,
+        "col": 13
+      }
+    },
+    {
+      "logicalId": "PRINTSCREEN",
+      "svgId": "key_PRINTSCREEN",
+      "pos": 13,
+      "protocolPos": 344,
+      "arrayIndex": 336,
+      "ledIndex": 84,
+      "grid": {
+        "row": 0,
+        "col": 14
+      }
+    },
+    {
+      "logicalId": "GRAVE",
+      "svgId": "key_GRAVE",
+      "pos": 14,
+      "protocolPos": 12,
+      "arrayIndex": 4,
+      "ledIndex": 1,
+      "grid": {
+        "row": 1,
+        "col": 0
+      }
+    },
+    {
+      "logicalId": "1",
+      "svgId": "key_1",
+      "pos": 15,
+      "protocolPos": 36,
+      "arrayIndex": 28,
+      "ledIndex": 7,
+      "grid": {
+        "row": 1,
+        "col": 1
+      }
+    },
+    {
+      "logicalId": "2",
+      "svgId": "key_2",
+      "pos": 16,
+      "protocolPos": 60,
+      "arrayIndex": 52,
+      "ledIndex": 13,
+      "grid": {
+        "row": 1,
+        "col": 2
+      }
+    },
+    {
+      "logicalId": "3",
+      "svgId": "key_3",
+      "pos": 17,
+      "protocolPos": 84,
+      "arrayIndex": 76,
+      "ledIndex": 19,
+      "grid": {
+        "row": 1,
+        "col": 3
+      }
+    },
+    {
+      "logicalId": "4",
+      "svgId": "key_4",
+      "pos": 18,
+      "protocolPos": 108,
+      "arrayIndex": 100,
+      "ledIndex": 25,
+      "grid": {
+        "row": 1,
+        "col": 4
+      }
+    },
+    {
+      "logicalId": "5",
+      "svgId": "key_5",
+      "pos": 19,
+      "protocolPos": 132,
+      "arrayIndex": 124,
+      "ledIndex": 31,
+      "grid": {
+        "row": 1,
+        "col": 5
+      }
+    },
+    {
+      "logicalId": "6",
+      "svgId": "key_6",
+      "pos": 20,
+      "protocolPos": 156,
+      "arrayIndex": 148,
+      "ledIndex": 37,
+      "grid": {
+        "row": 1,
+        "col": 6
+      }
+    },
+    {
+      "logicalId": "7",
+      "svgId": "key_7",
+      "pos": 21,
+      "protocolPos": 180,
+      "arrayIndex": 172,
+      "ledIndex": 43,
+      "grid": {
+        "row": 1,
+        "col": 7
+      }
+    },
+    {
+      "logicalId": "8",
+      "svgId": "key_8",
+      "pos": 22,
+      "protocolPos": 204,
+      "arrayIndex": 196,
+      "ledIndex": 49,
+      "grid": {
+        "row": 1,
+        "col": 8
+      }
+    },
+    {
+      "logicalId": "9",
+      "svgId": "key_9",
+      "pos": 23,
+      "protocolPos": 228,
+      "arrayIndex": 220,
+      "ledIndex": 55,
+      "grid": {
+        "row": 1,
+        "col": 9
+      }
+    },
+    {
+      "logicalId": "0",
+      "svgId": "key_0",
+      "pos": 24,
+      "protocolPos": 252,
+      "arrayIndex": 244,
+      "ledIndex": 61,
+      "grid": {
+        "row": 1,
+        "col": 10
+      }
+    },
+    {
+      "logicalId": "MINUS",
+      "svgId": "key_MINUS",
+      "pos": 25,
+      "protocolPos": 276,
+      "arrayIndex": 268,
+      "ledIndex": 67,
+      "grid": {
+        "row": 1,
+        "col": 11
+      }
+    },
+    {
+      "logicalId": "EQUAL",
+      "svgId": "key_EQUAL",
+      "pos": 26,
+      "protocolPos": 300,
+      "arrayIndex": 292,
+      "ledIndex": 73,
+      "grid": {
+        "row": 1,
+        "col": 12
+      }
+    },
+    {
+      "logicalId": "BACKSPACE",
+      "svgId": "key_BACKSPACE",
+      "pos": 27,
+      "protocolPos": 324,
+      "arrayIndex": 316,
+      "ledIndex": 79,
+      "grid": {
+        "row": 1,
+        "col": 13
+      }
+    },
+    {
+      "logicalId": "TAB",
+      "svgId": "key_TAB",
+      "pos": 28,
+      "protocolPos": 16,
+      "arrayIndex": 8,
+      "ledIndex": 2,
+      "grid": {
+        "row": 2,
+        "col": 0
+      }
+    },
+    {
+      "logicalId": "Q",
+      "svgId": "key_Q",
+      "pos": 29,
+      "protocolPos": 40,
+      "arrayIndex": 32,
+      "ledIndex": 8,
+      "grid": {
+        "row": 2,
+        "col": 1
+      }
+    },
+    {
+      "logicalId": "W",
+      "svgId": "key_W",
+      "pos": 30,
+      "protocolPos": 64,
+      "arrayIndex": 56,
+      "ledIndex": 14,
+      "grid": {
+        "row": 2,
+        "col": 2
+      }
+    },
+    {
+      "logicalId": "E",
+      "svgId": "key_E",
+      "pos": 31,
+      "protocolPos": 88,
+      "arrayIndex": 80,
+      "ledIndex": 20,
+      "grid": {
+        "row": 2,
+        "col": 3
+      }
+    },
+    {
+      "logicalId": "R",
+      "svgId": "key_R",
+      "pos": 32,
+      "protocolPos": 112,
+      "arrayIndex": 104,
+      "ledIndex": 26,
+      "grid": {
+        "row": 2,
+        "col": 4
+      }
+    },
+    {
+      "logicalId": "T",
+      "svgId": "key_T",
+      "pos": 33,
+      "protocolPos": 136,
+      "arrayIndex": 128,
+      "ledIndex": 32,
+      "grid": {
+        "row": 2,
+        "col": 5
+      }
+    },
+    {
+      "logicalId": "Y",
+      "svgId": "key_Y",
+      "pos": 34,
+      "protocolPos": 160,
+      "arrayIndex": 152,
+      "ledIndex": 38,
+      "grid": {
+        "row": 2,
+        "col": 6
+      }
+    },
+    {
+      "logicalId": "U",
+      "svgId": "key_U",
+      "pos": 35,
+      "protocolPos": 184,
+      "arrayIndex": 176,
+      "ledIndex": 44,
+      "grid": {
+        "row": 2,
+        "col": 7
+      }
+    },
+    {
+      "logicalId": "I",
+      "svgId": "key_I",
+      "pos": 36,
+      "protocolPos": 208,
+      "arrayIndex": 200,
+      "ledIndex": 50,
+      "grid": {
+        "row": 2,
+        "col": 8
+      }
+    },
+    {
+      "logicalId": "O",
+      "svgId": "key_O",
+      "pos": 37,
+      "protocolPos": 232,
+      "arrayIndex": 224,
+      "ledIndex": 56,
+      "grid": {
+        "row": 2,
+        "col": 9
+      }
+    },
+    {
+      "logicalId": "P",
+      "svgId": "key_P",
+      "pos": 38,
+      "protocolPos": 256,
+      "arrayIndex": 248,
+      "ledIndex": 62,
+      "grid": {
+        "row": 2,
+        "col": 10
+      }
+    },
+    {
+      "logicalId": "LBRACKET",
+      "svgId": "key_LBRACKET",
+      "pos": 39,
+      "protocolPos": 280,
+      "arrayIndex": 272,
+      "ledIndex": 68,
+      "grid": {
+        "row": 2,
+        "col": 11
+      }
+    },
+    {
+      "logicalId": "RBRACKET",
+      "svgId": "key_RBRACKET",
+      "pos": 40,
+      "protocolPos": 304,
+      "arrayIndex": 296,
+      "ledIndex": 74,
+      "grid": {
+        "row": 2,
+        "col": 12
+      }
+    },
+    {
+      "logicalId": "BACKSLASH",
+      "svgId": "key_BACKSLASH",
+      "pos": 41,
+      "protocolPos": 328,
+      "arrayIndex": 320,
+      "ledIndex": 80,
+      "grid": {
+        "row": 2,
+        "col": 13
+      }
+    },
+    {
+      "logicalId": "CAPSLOCK",
+      "svgId": "key_CAPSLOCK",
+      "pos": 42,
+      "protocolPos": 20,
+      "arrayIndex": 12,
+      "ledIndex": 3,
+      "grid": {
+        "row": 3,
+        "col": 0
+      }
+    },
+    {
+      "logicalId": "A",
+      "svgId": "key_A",
+      "pos": 43,
+      "protocolPos": 44,
+      "arrayIndex": 36,
+      "ledIndex": 9,
+      "grid": {
+        "row": 3,
+        "col": 1
+      }
+    },
+    {
+      "logicalId": "S",
+      "svgId": "key_S",
+      "pos": 44,
+      "protocolPos": 68,
+      "arrayIndex": 60,
+      "ledIndex": 15,
+      "grid": {
+        "row": 3,
+        "col": 2
+      }
+    },
+    {
+      "logicalId": "D",
+      "svgId": "key_D",
+      "pos": 45,
+      "protocolPos": 92,
+      "arrayIndex": 84,
+      "ledIndex": 21,
+      "grid": {
+        "row": 3,
+        "col": 3
+      }
+    },
+    {
+      "logicalId": "F",
+      "svgId": "key_F",
+      "pos": 46,
+      "protocolPos": 116,
+      "arrayIndex": 108,
+      "ledIndex": 27,
+      "grid": {
+        "row": 3,
+        "col": 4
+      }
+    },
+    {
+      "logicalId": "G",
+      "svgId": "key_G",
+      "pos": 47,
+      "protocolPos": 140,
+      "arrayIndex": 132,
+      "ledIndex": 33,
+      "grid": {
+        "row": 3,
+        "col": 5
+      }
+    },
+    {
+      "logicalId": "H",
+      "svgId": "key_H",
+      "pos": 48,
+      "protocolPos": 164,
+      "arrayIndex": 156,
+      "ledIndex": 39,
+      "grid": {
+        "row": 3,
+        "col": 6
+      }
+    },
+    {
+      "logicalId": "J",
+      "svgId": "key_J",
+      "pos": 49,
+      "protocolPos": 188,
+      "arrayIndex": 180,
+      "ledIndex": 45,
+      "grid": {
+        "row": 3,
+        "col": 7
+      }
+    },
+    {
+      "logicalId": "K",
+      "svgId": "key_K",
+      "pos": 50,
+      "protocolPos": 212,
+      "arrayIndex": 204,
+      "ledIndex": 51,
+      "grid": {
+        "row": 3,
+        "col": 8
+      }
+    },
+    {
+      "logicalId": "L",
+      "svgId": "key_L",
+      "pos": 51,
+      "protocolPos": 236,
+      "arrayIndex": 228,
+      "ledIndex": 57,
+      "grid": {
+        "row": 3,
+        "col": 9
+      }
+    },
+    {
+      "logicalId": "SEMICOLON",
+      "svgId": "key_SEMICOLON",
+      "pos": 52,
+      "protocolPos": 260,
+      "arrayIndex": 252,
+      "ledIndex": 63,
+      "grid": {
+        "row": 3,
+        "col": 10
+      }
+    },
+    {
+      "logicalId": "QUOTE",
+      "svgId": "key_QUOTE",
+      "pos": 53,
+      "protocolPos": 284,
+      "arrayIndex": 276,
+      "ledIndex": 69,
+      "grid": {
+        "row": 3,
+        "col": 11
+      }
+    },
+    {
+      "logicalId": "ENTER",
+      "svgId": "key_ENTER",
+      "pos": 54,
+      "protocolPos": 332,
+      "arrayIndex": 324,
+      "ledIndex": 81,
+      "grid": {
+        "row": 3,
+        "col": 13
+      }
+    },
+    {
+      "logicalId": "LSHIFT",
+      "svgId": "key_LSHIFT",
+      "pos": 55,
+      "protocolPos": 24,
+      "arrayIndex": 16,
+      "ledIndex": 4,
+      "grid": {
+        "row": 4,
+        "col": 0
+      }
+    },
+    {
+      "logicalId": "Z",
+      "svgId": "key_Z",
+      "pos": 56,
+      "protocolPos": 48,
+      "arrayIndex": 40,
+      "ledIndex": 10,
+      "grid": {
+        "row": 4,
+        "col": 1
+      }
+    },
+    {
+      "logicalId": "X",
+      "svgId": "key_X",
+      "pos": 57,
+      "protocolPos": 72,
+      "arrayIndex": 64,
+      "ledIndex": 16,
+      "grid": {
+        "row": 4,
+        "col": 2
+      }
+    },
+    {
+      "logicalId": "C",
+      "svgId": "key_C",
+      "pos": 58,
+      "protocolPos": 96,
+      "arrayIndex": 88,
+      "ledIndex": 22,
+      "grid": {
+        "row": 4,
+        "col": 3
+      }
+    },
+    {
+      "logicalId": "V",
+      "svgId": "key_V",
+      "pos": 59,
+      "protocolPos": 120,
+      "arrayIndex": 112,
+      "ledIndex": 28,
+      "grid": {
+        "row": 4,
+        "col": 4
+      }
+    },
+    {
+      "logicalId": "B",
+      "svgId": "key_B",
+      "pos": 60,
+      "protocolPos": 144,
+      "arrayIndex": 136,
+      "ledIndex": 34,
+      "grid": {
+        "row": 4,
+        "col": 5
+      }
+    },
+    {
+      "logicalId": "N",
+      "svgId": "key_N",
+      "pos": 61,
+      "protocolPos": 168,
+      "arrayIndex": 160,
+      "ledIndex": 40,
+      "grid": {
+        "row": 4,
+        "col": 6
+      }
+    },
+    {
+      "logicalId": "M",
+      "svgId": "key_M",
+      "pos": 62,
+      "protocolPos": 192,
+      "arrayIndex": 184,
+      "ledIndex": 46,
+      "grid": {
+        "row": 4,
+        "col": 7
+      }
+    },
+    {
+      "logicalId": "COMMA",
+      "svgId": "key_COMMA",
+      "pos": 63,
+      "protocolPos": 216,
+      "arrayIndex": 208,
+      "ledIndex": 52,
+      "grid": {
+        "row": 4,
+        "col": 8
+      }
+    },
+    {
+      "logicalId": "DOT",
+      "svgId": "key_DOT",
+      "pos": 64,
+      "protocolPos": 240,
+      "arrayIndex": 232,
+      "ledIndex": 58,
+      "grid": {
+        "row": 4,
+        "col": 9
+      }
+    },
+    {
+      "logicalId": "SLASH",
+      "svgId": "key_SLASH",
+      "pos": 65,
+      "protocolPos": 264,
+      "arrayIndex": 256,
+      "ledIndex": 64,
+      "grid": {
+        "row": 4,
+        "col": 10
+      }
+    },
+    {
+      "logicalId": "RSHIFT",
+      "svgId": "key_RSHIFT",
+      "pos": 66,
+      "protocolPos": 336,
+      "arrayIndex": 328,
+      "ledIndex": 82,
+      "grid": {
+        "row": 4,
+        "col": 12
+      }
+    },
+    {
+      "logicalId": "LCTRL",
+      "svgId": "key_LCTRL",
+      "pos": 67,
+      "protocolPos": 28,
+      "arrayIndex": 20,
+      "ledIndex": 5,
+      "grid": {
+        "row": 5,
+        "col": 0
+      }
+    },
+    {
+      "logicalId": "LGUI",
+      "svgId": "key_LGUI",
+      "pos": 68,
+      "protocolPos": 52,
+      "arrayIndex": 44,
+      "ledIndex": 11,
+      "grid": {
+        "row": 5,
+        "col": 1
+      }
+    },
+    {
+      "logicalId": "LALT",
+      "svgId": "key_LALT",
+      "pos": 69,
+      "protocolPos": 76,
+      "arrayIndex": 68,
+      "ledIndex": 17,
+      "grid": {
+        "row": 5,
+        "col": 2
+      }
+    },
+    {
+      "logicalId": "SPACE",
+      "svgId": "key_SPACE",
+      "pos": 70,
+      "protocolPos": 148,
+      "arrayIndex": 140,
+      "ledIndex": 35,
+      "grid": {
+        "row": 5,
+        "col": 5,
+        "colSpan": 3
+      }
+    },
+    {
+      "logicalId": "RALT",
+      "svgId": "key_RALT",
+      "pos": 71,
+      "protocolPos": 220,
+      "arrayIndex": 212,
+      "ledIndex": 53,
+      "grid": {
+        "row": 5,
+        "col": 8
+      }
+    },
+    {
+      "logicalId": "FN",
+      "svgId": "key_FN",
+      "pos": 72,
+      "protocolPos": 244,
+      "arrayIndex": 236,
+      "ledIndex": 59,
+      "grid": {
+        "row": 5,
+        "col": 9
+      }
+    },
+    {
+      "logicalId": "RCTRL",
+      "svgId": "key_RCTRL",
+      "pos": 73,
+      "protocolPos": 268,
+      "arrayIndex": 260,
+      "ledIndex": 65,
+      "grid": {
+        "row": 5,
+        "col": 10
+      }
+    },
+    {
+      "logicalId": "UP",
+      "svgId": "key_UP",
+      "pos": 74,
+      "protocolPos": 360,
+      "arrayIndex": 352,
+      "ledIndex": 88,
+      "grid": {
+        "row": 4,
+        "col": 14
+      }
+    },
+    {
+      "logicalId": "LEFT",
+      "svgId": "key_LEFT",
+      "pos": 75,
+      "protocolPos": 340,
+      "arrayIndex": 332,
+      "ledIndex": 83,
+      "grid": {
+        "row": 5,
+        "col": 13
+      }
+    },
+    {
+      "logicalId": "DOWN",
+      "svgId": "key_DOWN",
+      "pos": 76,
+      "protocolPos": 364,
+      "arrayIndex": 356,
+      "ledIndex": 89,
+      "grid": {
+        "row": 5,
+        "col": 14
+      }
+    },
+    {
+      "logicalId": "RIGHT",
+      "svgId": "key_RIGHT",
+      "pos": 77,
+      "protocolPos": 388,
+      "arrayIndex": 380,
+      "ledIndex": 95,
+      "grid": {
+        "row": 5,
+        "col": 15
+      }
+    },
+    {
+      "logicalId": "DELETE",
+      "svgId": "key_DELETE",
+      "pos": 78,
+      "protocolPos": 372,
+      "arrayIndex": 364,
+      "ledIndex": 91,
+      "grid": {
+        "row": 1,
+        "col": 15
+      }
+    },
+    {
+      "logicalId": "PAGEUP",
+      "svgId": "key_PAGEUP",
+      "pos": 79,
+      "protocolPos": 376,
+      "arrayIndex": 368,
+      "ledIndex": 92,
+      "grid": {
+        "row": 2,
+        "col": 15
+      }
+    },
+    {
+      "logicalId": "PAGEDOWN",
+      "svgId": "key_PAGEDOWN",
+      "pos": 80,
+      "protocolPos": 380,
+      "arrayIndex": 372,
+      "ledIndex": 93,
+      "grid": {
+        "row": 3,
+        "col": 15
+      }
+    },
+    {
+      "logicalId": "END",
+      "svgId": "key_END",
+      "pos": 81,
+      "protocolPos": 384,
+      "arrayIndex": 376,
+      "ledIndex": 94,
+      "grid": {
+        "row": 4,
+        "col": 15
+      }
+    }
+  ]
+}

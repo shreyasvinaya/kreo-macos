@@ -11,7 +11,24 @@ describe("screen chrome", () => {
         firmware: "BYT-0x010C-preview",
         syncState: "Live session",
       }),
-    ).toEqual(["Profile 1", "Connected"]);
+    ).toEqual([
+      { kind: "profile", label: "Profile 1" },
+      { kind: "connection", label: "Connected" },
+    ]);
+  });
+
+  test("device top bar keeps the connection first and profile second", () => {
+    expect(
+      buildHeaderChips("Device", {
+        activeProfile: "Desk Setup",
+        connectionLabel: "Connected",
+        firmware: "BYT-0x010C-preview",
+        syncState: "Live session",
+      }),
+    ).toEqual([
+      { kind: "connection", label: "Connected" },
+      { kind: "profile", label: "Desk Setup" },
+    ]);
   });
 
   test("lighting hides the device card while dashboard keeps it", () => {

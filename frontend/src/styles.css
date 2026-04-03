@@ -321,6 +321,56 @@ code {
   overflow: auto;
 }
 
+.asset-keyboard-shell {
+  position: relative;
+  width: min(1120px, 100%);
+  min-width: 860px;
+  aspect-ratio: 1 / 1;
+  margin: 0 auto;
+}
+
+.asset-keyboard-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.asset-keyboard-base,
+.asset-keyboard-letters {
+  object-fit: contain;
+  user-select: none;
+  pointer-events: none;
+}
+
+.asset-keyboard-base {
+  z-index: 0;
+}
+
+.asset-keyboard-rgb {
+  z-index: 1;
+}
+
+.asset-keyboard-rgb svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.asset-keyboard-rgb path {
+  cursor: pointer;
+  transition: filter 120ms ease, opacity 120ms ease;
+}
+
+.asset-keyboard-rgb path:hover {
+  filter: brightness(1.08);
+}
+
+.asset-keyboard-letters {
+  z-index: 2;
+}
+
 .board-shell {
   min-width: fit-content;
   display: grid;
@@ -595,6 +645,122 @@ code {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
+.keymap-preview-keycap {
+  background: linear-gradient(180deg, #34414f 0%, #273240 100%);
+  color: #eef2f6;
+}
+
+.keymap-controls {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.select-control {
+  display: grid;
+  gap: 8px;
+  position: relative;
+}
+
+.dropdown-select {
+  position: relative;
+}
+
+.dropdown-trigger {
+  width: 100%;
+  padding: 11px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--panel-border);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dropdown-trigger:disabled {
+  cursor: default;
+  opacity: 0.72;
+}
+
+.dropdown-trigger-copy {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.dropdown-trigger-copy strong,
+.dropdown-option-copy strong {
+  display: block;
+  font-weight: 600;
+}
+
+.dropdown-trigger-copy small,
+.dropdown-option-copy small {
+  display: block;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.dropdown-chevron {
+  color: var(--muted);
+  transition: transform 120ms ease;
+}
+
+.dropdown-chevron-open {
+  transform: rotate(180deg);
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: 30;
+  max-height: 280px;
+  overflow: auto;
+  padding: 8px;
+  border-radius: 14px;
+  border: 1px solid var(--panel-border);
+  background: linear-gradient(180deg, #202a33 0%, #171e25 100%);
+  box-shadow: 0 18px 32px rgba(0, 0, 0, 0.34);
+}
+
+.dropdown-option {
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.dropdown-option:hover,
+.dropdown-option-selected {
+  background: rgba(89, 182, 255, 0.14);
+}
+
+.dropdown-option-copy {
+  display: grid;
+  gap: 2px;
+}
+
+.dropdown-select-pill .dropdown-trigger {
+  border-radius: 999px;
+  padding: 8px 12px;
+  min-width: 180px;
+}
+
+.dropdown-select-pill .dropdown-menu {
+  right: auto;
+  min-width: 260px;
+}
+
 .inspector-actions {
   display: flex;
   gap: 10px;
@@ -709,6 +875,15 @@ code {
   gap: 8px;
 }
 
+.preset-controls {
+  display: grid;
+  gap: 10px;
+}
+
+.preset-controls input[type="range"] {
+  width: 100%;
+}
+
 .board-action-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -817,6 +992,93 @@ code {
   font-size: 0.76rem;
 }
 
+.profiles-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: end;
+}
+
+.profile-name-control {
+  margin: 0;
+}
+
+.profile-name-control input {
+  width: 100%;
+}
+
+.profile-error {
+  margin: 0;
+  color: #ff9d9d;
+  font-size: 0.88rem;
+}
+
+.profiles-list {
+  display: grid;
+  gap: 12px;
+}
+
+.profile-card {
+  display: grid;
+  gap: 10px;
+  padding: 14px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  background: rgba(9, 12, 16, 0.24);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.profile-card-active {
+  border-color: rgba(48, 171, 255, 0.42);
+  box-shadow: 0 0 0 1px rgba(48, 171, 255, 0.16);
+}
+
+.profile-card-header,
+.profile-card-actions,
+.profile-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.profile-card-meta,
+.profile-card-actions {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.secondary-link {
+  color: #9dcfff;
+}
+
+.macros-toolbar {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.macro-actions-list {
+  display: grid;
+  gap: 12px;
+}
+
+.macro-action-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 0.9fr) auto;
+  gap: 12px;
+  align-items: end;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(9, 12, 16, 0.18);
+}
+
+.macro-slots-list {
+  max-height: 100%;
+  overflow: auto;
+}
+
 @media (max-width: 1120px) {
   .launcher-shell {
     grid-template-columns: 1fr;
@@ -842,9 +1104,18 @@ code {
   .trace-head,
   .trace-payload,
   .inspector-key,
-  .inspector-actions {
+  .inspector-actions,
+  .profile-card-header,
+  .profile-card-actions,
+  .profile-card-meta,
+  .profiles-toolbar,
+  .macro-action-row {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .macro-action-row {
+    display: flex;
   }
 
   .summary-grid,

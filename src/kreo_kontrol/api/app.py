@@ -9,14 +9,19 @@ from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import ValidationError
 
+from kreo_kontrol.api.keyboard_assets import load_keyboard_asset
 from kreo_kontrol.api.models import (
+    CreateProfilePayload,
     DeviceSummary,
     HealthStatus,
+    KeyboardAssetResponse,
+    KeymapApplyPayload,
     KeymapResponse,
     LightingApplyPayload,
     LightingApplyResponse,
     LightingResponse,
     MacrosResponse,
+    MacroUpsertPayload,
     PerKeyLightingApplyPayload,
     PerKeyLightingResponse,
     ProfilesResponse,
@@ -30,6 +35,7 @@ from kreo_kontrol.device.bytech_lighting import (
 from kreo_kontrol.device.domains.lighting import (
     LightingApplyRequest,
 )
+from kreo_kontrol.profiles.store import SavedProfilesStore, default_saved_profiles_path
 
 
 def resolve_frontend_dist(frontend_dist: Path | None = None) -> Path:
@@ -44,12 +50,14 @@ def resolve_frontend_dist(frontend_dist: Path | None = None) -> Path:
 def create_app(
     frontend_dist: Path | None = None,
     lighting_controller: LightingController | None = None,
+    saved_profiles_path: Path | None = None,
 ) -> FastAPI:
     """Build the loopback API application."""
 
     app = FastAPI(title="Kreo Kontrol API")
     dist_path = resolve_frontend_dist(frontend_dist)
     controller = lighting_controller or StubLightingController()
+    profiles_store = SavedProfilesStore(saved_profiles_path or default_saved_profiles_path())
 
     @app.get("/api/health", response_model=HealthStatus)
     def health() -> HealthStatus:
@@ -59,24 +67,47 @@ def create_app(
     def device() -> DeviceSummary:
         return DeviceSummary(
             connected=controller.is_connected(),
+            configurable=controller.configurable(),
             supported_devices=controller.supported_devices(),
+            supports_profiles=controller.supports_profiles(),
+            transport_kind=controller.transport_kind(),
         )
+
+    @app.get("/api/keyboard-assets/{asset_name}", response_model=KeyboardAssetResponse)
+    def keyboard_assets(asset_name: str) -> KeyboardAssetResponse:
+        return load_keyboard_asset(asset_name)
 
     @app.get("/api/profiles", response_model=ProfilesResponse)
     def profiles() -> ProfilesResponse:
-        return ProfilesResponse(active_profile=1, available_profiles=[1, 2, 3])
+        return profiles_store.to_response()
+
+    @app.post("/api/profiles", response_model=ProfilesResponse)
+    def create_profile(payload: CreateProfilePayload) -> ProfilesResponse:
+        return profiles_store.capture_current(controller, payload.name)
+
+    @app.post("/api/profiles/{snapshot_id}/apply", response_model=ProfilesResponse)
+    def apply_profile(snapshot_id: str) -> ProfilesResponse:
+        try:
+            return profiles_store.apply_snapshot(controller, snapshot_id)
+        except ValueError as exc:
+            raise HTTPException(status_code=404, detail=str(exc)) from exc
 
     @app.get("/api/keymap", response_model=KeymapResponse)
     def keymap() -> KeymapResponse:
-        return KeymapResponse(
-            assignments=[
-                {
-                    "position": "ralt",
-                    "action": "right_option",
-                    "fn_action": "mission_control",
+        return KeymapResponse.model_validate(controller.read_keymap())
+
+    @app.post("/api/keymap/apply", response_model=KeymapResponse)
+    def apply_keymap(payload: KeymapApplyPayload) -> KeymapResponse:
+        result = controller.apply_keymap(
+            {
+                ui_key: {
+                    "base_raw_value": edit.base_raw_value,
+                    "fn_raw_value": edit.fn_raw_value,
                 }
-            ]
+                for ui_key, edit in payload.edits.items()
+            }
         )
+        return KeymapResponse.model_validate(result)
 
     @app.get("/api/lighting", response_model=LightingResponse)
     def lighting() -> LightingResponse:
@@ -149,9 +180,43 @@ def create_app(
 
     @app.get("/api/macros", response_model=MacrosResponse)
     def macros() -> MacrosResponse:
-        return MacrosResponse(
-            slots=[{"slot_id": 1, "name": "Launchpad", "bound_key": "f13"}]
-        )
+        return MacrosResponse.model_validate(controller.read_macros())
+
+    @app.put("/api/macros/{slot_id}", response_model=MacrosResponse)
+    def upsert_macro(slot_id: int, payload: MacroUpsertPayload) -> MacrosResponse:
+        try:
+            result = controller.apply_macro(
+                slot_id=slot_id,
+                request={
+                    "name": payload.name,
+                    "bound_ui_key": payload.bound_ui_key,
+                    "execution_type": payload.execution_type,
+                    "cycle_times": payload.cycle_times,
+                    "actions": [
+                        {
+                            "key": action.key,
+                            "event_type": action.event_type,
+                            "delay_ms": action.delay_ms,
+                        }
+                        for action in payload.actions
+                    ],
+                },
+            )
+        except LightingHardwareUnavailableError as exc:
+            raise HTTPException(status_code=503, detail=str(exc)) from exc
+        except LightingProtocolError as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
+        return MacrosResponse.model_validate(result)
+
+    @app.delete("/api/macros/{slot_id}", response_model=MacrosResponse)
+    def delete_macro(slot_id: int) -> MacrosResponse:
+        try:
+            result = controller.delete_macro(slot_id)
+        except LightingHardwareUnavailableError as exc:
+            raise HTTPException(status_code=503, detail=str(exc)) from exc
+        except LightingProtocolError as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
+        return MacrosResponse.model_validate(result)
 
     if dist_path.exists():
         assets_path = dist_path / "assets"
